@@ -16,6 +16,12 @@ enum AppColors {
     static let primaryText = Color(hex: "#F3F5F7")
     static let secondaryText = Color(hex: "#98A2B3")
     static let accent = Color(hex: "#7C5CFF")
+
+    // Priority colors
+    static let priorityLow = Color(hex: "#10B981")      // Green
+    static let priorityNormal = Color(hex: "#3B82F6")   // Blue
+    static let priorityHigh = Color(hex: "#F59E0B")     // Orange
+    static let priorityUrgent = Color(hex: "#EF4444")   // Red
 }
 
 extension Color {

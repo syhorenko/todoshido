@@ -22,6 +22,9 @@ struct AppPreferences: Codable, Equatable {
     /// Whether app should launch at login
     var launchAtLogin: Bool
 
+    /// Default priority for new todos
+    var defaultTodoPriority: TodoPriority
+
     /// Version for future migrations
     var version: Int
 
@@ -30,6 +33,7 @@ struct AppPreferences: Codable, Equatable {
         hotkeyModifiers: UInt32(cmdKey | shiftKey),
         duplicateDetectionWindow: 10.0,
         launchAtLogin: false,
-        version: 1
+        defaultTodoPriority: .normal,
+        version: 2
     )
 }

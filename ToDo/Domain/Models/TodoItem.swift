@@ -19,6 +19,7 @@ struct TodoItem: Identifiable, Equatable {
     var sourceAppName: String?
     var sourceBundleID: String?
     var captureMethod: CaptureMethod
+    var priority: TodoPriority
 
     init(
         id: UUID = UUID(),
@@ -29,7 +30,8 @@ struct TodoItem: Identifiable, Equatable {
         status: TodoStatus = .active,
         sourceAppName: String? = nil,
         sourceBundleID: String? = nil,
-        captureMethod: CaptureMethod = .manualEntry
+        captureMethod: CaptureMethod = .manualEntry,
+        priority: TodoPriority = .normal
     ) {
         self.id = id
         self.text = text
@@ -40,5 +42,6 @@ struct TodoItem: Identifiable, Equatable {
         self.sourceAppName = sourceAppName
         self.sourceBundleID = sourceBundleID
         self.captureMethod = captureMethod
+        self.priority = priority
     }
 }
