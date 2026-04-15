@@ -17,6 +17,7 @@ final class CloudKitSyncMonitor: ObservableObject {
     @Published private(set) var lastSyncDate: Date?
     @Published private(set) var syncError: Error?
     @Published private(set) var accountStatus: CKAccountStatus = .couldNotDetermine
+    @Published private(set) var userActionableError: String?
 
     private let container: NSPersistentCloudKitContainer
     private var cancellables = Set<AnyCancellable>()
@@ -69,8 +70,14 @@ final class CloudKitSyncMonitor: ObservableObject {
         if let error = event.error {
             syncError = error
             Logger.error("CloudKit sync error: \(error)", category: "sync")
+
+            // Check if error requires user action
+            if let ckError = error as? CKError, ckError.requiresUserAction {
+                userActionableError = ckError.userFriendlyMessage
+            }
         } else {
             syncError = nil
+            userActionableError = nil
         }
     }
 

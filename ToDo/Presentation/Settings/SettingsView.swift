@@ -79,6 +79,21 @@ struct SettingsView: View {
                             )
                     }
 
+                    // Show error message if present
+                    if let errorMessage = viewModel.syncErrorMessage {
+                        HStack(alignment: .top, spacing: AppSpacing.small) {
+                            Image(systemName: "exclamationmark.triangle.fill")
+                                .foregroundColor(.orange)
+                                .font(.caption)
+
+                            Text(errorMessage)
+                                .font(.caption)
+                                .foregroundColor(AppColors.secondaryText)
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
+                        .padding(.top, AppSpacing.xSmall)
+                    }
+
                     if !viewModel.cloudSyncStatusService.isEnabled {
                         Text("Sign in to iCloud in System Settings to enable sync")
                             .font(.caption)

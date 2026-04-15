@@ -13,6 +13,7 @@ import Combine
 final class SettingsViewModel: ObservableObject {
     @Published var preferences: AppPreferences
     @Published var errorMessage: String?
+    @Published var syncErrorMessage: String?
 
     let preferencesService: PreferencesService
     let launchAtLoginService: LaunchAtLoginService
@@ -27,6 +28,12 @@ final class SettingsViewModel: ObservableObject {
         self.launchAtLoginService = launchAtLoginService
         self.cloudSyncStatusService = cloudSyncStatusService
         self.preferences = preferencesService.preferences
+
+        // Subscribe to sync errors
+        if let monitor = (cloudSyncStatusService as? CloudKitSyncStatusService)?.monitor {
+            monitor.$userActionableError
+                .assign(to: &$syncErrorMessage)
+        }
     }
 
     /// Save preferences to persistence
