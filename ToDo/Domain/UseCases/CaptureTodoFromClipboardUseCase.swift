@@ -13,21 +13,21 @@ final class CaptureTodoFromClipboardUseCase {
     private let pasteboardService: PasteboardService
     private let activeAppService: ActiveApplicationService
     private let createUseCase: CreateTodoUseCase
+    private let preferencesService: PreferencesService
 
     // Duplicate detection cache
     private var recentCaptures: [String: Date] = [:]
-    private let detectionWindow: TimeInterval
 
     init(
         pasteboardService: PasteboardService,
         activeAppService: ActiveApplicationService,
         createUseCase: CreateTodoUseCase,
-        detectionWindow: TimeInterval = Constants.duplicateDetectionSeconds
+        preferencesService: PreferencesService
     ) {
         self.pasteboardService = pasteboardService
         self.activeAppService = activeAppService
         self.createUseCase = createUseCase
-        self.detectionWindow = detectionWindow
+        self.preferencesService = preferencesService
     }
 
     enum CaptureError: Error {
@@ -82,11 +82,13 @@ final class CaptureTodoFromClipboardUseCase {
         guard let captureTime = recentCaptures[cacheKey] else {
             return false
         }
+        let detectionWindow = preferencesService.preferences.duplicateDetectionWindow
         return Date().timeIntervalSince(captureTime) < detectionWindow
     }
 
     private func cleanExpiredCache() {
         let now = Date()
+        let detectionWindow = preferencesService.preferences.duplicateDetectionWindow
         recentCaptures = recentCaptures.filter { _, date in
             now.timeIntervalSince(date) < detectionWindow
         }

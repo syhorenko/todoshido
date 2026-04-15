@@ -7,6 +7,7 @@
 
 import SwiftUI
 import Combine
+import Carbon
 
 /// Main app coordinator managing view creation and dependency injection
 /// Implements the Coordinator pattern to decouple view construction from views
@@ -22,6 +23,9 @@ final class AppCoordinator: ObservableObject {
     // Published state for capture HUD
     @Published var captureMessage: String?
     @Published var captureType: CaptureHUDView.CaptureResultType?
+
+    // Preferences subscription
+    private var preferencesSubscription: AnyCancellable?
 
     init(
         repository: TodoRepository,
@@ -41,10 +45,12 @@ final class AppCoordinator: ObservableObject {
         self.captureUseCase = CaptureTodoFromClipboardUseCase(
             pasteboardService: pasteboardService,
             activeAppService: activeAppService,
-            createUseCase: createUseCase
+            createUseCase: createUseCase,
+            preferencesService: preferencesService
         )
 
         setupHotkey()
+        subscribeToPreferenceChanges()
     }
 
     /// Create Inbox view with injected dependencies
@@ -108,18 +114,78 @@ final class AppCoordinator: ObservableObject {
     // MARK: - Hotkey Setup
 
     private func setupHotkey() {
+        let prefs = preferencesService.preferences
+        let config = HotkeyConfiguration(
+            keyCode: prefs.hotkeyKeyCode,
+            modifiers: prefs.hotkeyModifiers,
+            identifier: "com.todo.capture"
+        )
+
         do {
-            try hotkeyService.register(
-                configuration: .captureShortcut,
-                handler: { [weak self] in
-                    Task { @MainActor in
-                        await self?.handleCapture()
-                    }
+            try hotkeyService.register(configuration: config, handler: { [weak self] in
+                Task { @MainActor in
+                    await self?.handleCapture()
                 }
+            })
+            let displayString = HotkeyFormatter.displayString(
+                modifiers: config.modifiers,
+                keyCode: config.keyCode
             )
-            Logger.info("Hotkey registered: Cmd+Shift+T", category: "coordinator")
+            Logger.info("Hotkey registered: \(displayString)", category: "coordinator")
         } catch {
             Logger.error("Failed to register hotkey: \(error)", category: "coordinator")
+        }
+    }
+
+    private func subscribeToPreferenceChanges() {
+        guard let concreteService = preferencesService as? UserDefaultsPreferencesService else {
+            return
+        }
+
+        preferencesSubscription = concreteService.$preferences
+            .dropFirst()  // Skip initial value
+            .sink { [weak self] newPrefs in
+                Task { @MainActor [weak self] in
+                    await self?.updateHotkey(
+                        keyCode: newPrefs.hotkeyKeyCode,
+                        modifiers: newPrefs.hotkeyModifiers
+                    )
+                }
+            }
+    }
+
+    private func updateHotkey(keyCode: UInt32, modifiers: UInt32) async {
+        // Unregister current hotkey
+        hotkeyService.unregister(identifier: "com.todo.capture")
+
+        // Register new hotkey
+        let config = HotkeyConfiguration(
+            keyCode: keyCode,
+            modifiers: modifiers,
+            identifier: "com.todo.capture"
+        )
+
+        do {
+            try hotkeyService.register(configuration: config, handler: { [weak self] in
+                Task { @MainActor in
+                    await self?.handleCapture()
+                }
+            })
+            let displayString = HotkeyFormatter.displayString(
+                modifiers: modifiers,
+                keyCode: keyCode
+            )
+            Logger.info("Hotkey updated to \(displayString)", category: "coordinator")
+        } catch {
+            Logger.error("Failed to register new hotkey: \(error)", category: "coordinator")
+
+            // Fallback to default on error
+            let defaultConfig = HotkeyConfiguration.captureShortcut
+            try? hotkeyService.register(configuration: defaultConfig, handler: { [weak self] in
+                Task { @MainActor in
+                    await self?.handleCapture()
+                }
+            })
         }
     }
 
