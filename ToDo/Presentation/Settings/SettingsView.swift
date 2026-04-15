@@ -13,6 +13,25 @@ struct SettingsView: View {
 
     var body: some View {
         Form {
+            // General Section
+            Section("General") {
+                Picker("Default Priority", selection: $viewModel.preferences.defaultTodoPriority) {
+                    ForEach([TodoPriority.low, .normal, .high, .urgent], id: \.self) { priority in
+                        HStack(spacing: AppSpacing.small) {
+                            Circle()
+                                .fill(priority.color)
+                                .frame(width: 8, height: 8)
+                            Text(priority.displayName)
+                        }
+                        .tag(priority)
+                    }
+                }
+                .pickerStyle(.menu)
+                .onChange(of: viewModel.preferences.defaultTodoPriority) { _ in
+                    viewModel.savePreferences()
+                }
+            }
+
             // Hotkey Section
             Section("Global Hotkey") {
                 HotkeyPicker(
