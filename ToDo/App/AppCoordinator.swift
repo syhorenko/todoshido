@@ -13,9 +13,30 @@ import Combine
 @MainActor
 final class AppCoordinator: ObservableObject {
     private let repository: TodoRepository
+    private let hotkeyService: HotkeyService
+    private let captureUseCase: CaptureTodoFromClipboardUseCase
 
-    init(repository: TodoRepository) {
+    // Published state for capture HUD
+    @Published var captureMessage: String?
+    @Published var captureType: CaptureHUDView.CaptureResultType?
+
+    init(
+        repository: TodoRepository,
+        hotkeyService: HotkeyService,
+        pasteboardService: PasteboardService,
+        activeAppService: ActiveApplicationService
+    ) {
         self.repository = repository
+        self.hotkeyService = hotkeyService
+
+        let createUseCase = CreateTodoUseCase(repository: repository)
+        self.captureUseCase = CaptureTodoFromClipboardUseCase(
+            pasteboardService: pasteboardService,
+            activeAppService: activeAppService,
+            createUseCase: createUseCase
+        )
+
+        setupHotkey()
     }
 
     /// Create Inbox view with injected dependencies
@@ -48,5 +69,61 @@ final class AppCoordinator: ObservableObject {
         )
 
         return ArchiveView(viewModel: viewModel)
+    }
+
+    // MARK: - Hotkey Setup
+
+    private func setupHotkey() {
+        do {
+            try hotkeyService.register(
+                configuration: .captureShortcut,
+                handler: { [weak self] in
+                    Task { @MainActor in
+                        await self?.handleCapture()
+                    }
+                }
+            )
+            Logger.info("Hotkey registered: Cmd+Shift+T", category: "coordinator")
+        } catch {
+            Logger.error("Failed to register hotkey: \(error)", category: "coordinator")
+        }
+    }
+
+    // MARK: - Capture Handling
+
+    func handleCapture() async {
+        do {
+            let item = try await captureUseCase.execute()
+            showCaptureSuccess(text: item.text)
+        } catch CaptureTodoFromClipboardUseCase.CaptureError.clipboardEmpty {
+            showCaptureError(message: "Clipboard is empty")
+        } catch CaptureTodoFromClipboardUseCase.CaptureError.duplicateCapture {
+            // Silent ignore - duplicate detection prevents noise
+            Logger.debug("Duplicate capture suppressed", category: "capture")
+        } catch {
+            showCaptureError(message: "Failed to capture")
+            Logger.error("Capture failed: \(error)", category: "capture")
+        }
+    }
+
+    private func showCaptureSuccess(text: String) {
+        let truncated = text.prefix(40)
+        captureMessage = "Captured: \(truncated)\(text.count > 40 ? "..." : "")"
+        captureType = .success
+        clearCaptureMessage()
+    }
+
+    private func showCaptureError(message: String) {
+        captureMessage = message
+        captureType = .error
+        clearCaptureMessage()
+    }
+
+    private func clearCaptureMessage() {
+        Task {
+            try? await Task.sleep(nanoseconds: 1_500_000_000)  // 1.5 seconds
+            captureMessage = nil
+            captureType = nil
+        }
     }
 }

@@ -45,11 +45,25 @@ struct MainView: View {
             }
         }
         .background(AppColors.background)
+        .overlay(alignment: .top) {
+            if let message = coordinator.captureMessage,
+               let type = coordinator.captureType {
+                CaptureHUDView(message: message, type: type)
+                    .padding(.top, AppSpacing.large)
+                    .transition(.move(edge: .top).combined(with: .opacity))
+                    .animation(.easeInOut(duration: 0.3), value: coordinator.captureMessage)
+            }
+        }
     }
 }
 
 #Preview {
     MainView(
-        coordinator: AppCoordinator(repository: MockTodoRepository())
+        coordinator: AppCoordinator(
+            repository: MockTodoRepository(),
+            hotkeyService: CarbonHotkeyService(),
+            pasteboardService: NSPasteboardService(),
+            activeAppService: NSWorkspaceActiveApplicationService()
+        )
     )
 }

@@ -24,7 +24,17 @@ struct ToDoApp: App {
         let repository = CoreDataTodoRepository(
             context: persistenceController.container.viewContext
         )
-        return AppCoordinator(repository: repository)
+
+        let hotkeyService = CarbonHotkeyService()
+        let pasteboardService = NSPasteboardService()
+        let activeAppService = NSWorkspaceActiveApplicationService()
+
+        return AppCoordinator(
+            repository: repository,
+            hotkeyService: hotkeyService,
+            pasteboardService: pasteboardService,
+            activeAppService: activeAppService
+        )
     }
 
     private func runMigration() async {
