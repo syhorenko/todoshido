@@ -71,6 +71,19 @@ final class AppCoordinator: ObservableObject {
         return ArchiveView(viewModel: viewModel)
     }
 
+    /// Create Menu Bar view with injected dependencies
+    func makeMenuBarView() -> MenuBarView {
+        let fetchUseCase = FetchRecentTodosUseCase(repository: repository)
+        let completeUseCase = CompleteTodoUseCase(repository: repository)
+
+        let viewModel = MenuBarViewModel(
+            fetchUseCase: fetchUseCase,
+            completeUseCase: completeUseCase
+        )
+
+        return MenuBarView(viewModel: viewModel)
+    }
+
     // MARK: - Hotkey Setup
 
     private func setupHotkey() {

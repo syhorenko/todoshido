@@ -10,31 +10,40 @@ import SwiftUI
 @main
 struct ToDoApp: App {
     let persistenceController = PersistenceController.shared
+    @StateObject private var coordinator: AppCoordinator
 
-    var body: some Scene {
-        WindowGroup {
-            MainView(coordinator: makeCoordinator())
-                .task {
-                    await runMigration()
-                }
-        }
-    }
-
-    private func makeCoordinator() -> AppCoordinator {
+    init() {
         let repository = CoreDataTodoRepository(
-            context: persistenceController.container.viewContext
+            context: PersistenceController.shared.container.viewContext
         )
 
         let hotkeyService = CarbonHotkeyService()
         let pasteboardService = NSPasteboardService()
         let activeAppService = NSWorkspaceActiveApplicationService()
 
-        return AppCoordinator(
+        let appCoordinator = AppCoordinator(
             repository: repository,
             hotkeyService: hotkeyService,
             pasteboardService: pasteboardService,
             activeAppService: activeAppService
         )
+
+        _coordinator = StateObject(wrappedValue: appCoordinator)
+    }
+
+    var body: some Scene {
+        WindowGroup {
+            MainView(coordinator: coordinator)
+                .task {
+                    await runMigration()
+                }
+        }
+
+        MenuBarExtra {
+            coordinator.makeMenuBarView()
+        } label: {
+            Image(systemName: "checkmark.circle")
+        }
     }
 
     private func runMigration() async {
