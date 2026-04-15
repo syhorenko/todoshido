@@ -95,6 +95,9 @@ final class AppCoordinator: ObservableObject {
         do {
             let item = try await captureUseCase.execute()
             showCaptureSuccess(text: item.text)
+
+            // Notify views to refresh
+            NotificationCenter.default.post(name: .todoCaptured, object: nil)
         } catch CaptureTodoFromClipboardUseCase.CaptureError.clipboardEmpty {
             showCaptureError(message: "Clipboard is empty")
         } catch CaptureTodoFromClipboardUseCase.CaptureError.duplicateCapture {

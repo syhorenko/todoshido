@@ -20,6 +20,7 @@ final class InboxViewModel: ObservableObject {
     private let createUseCase: CreateTodoUseCase
     private let completeUseCase: CompleteTodoUseCase
     private let deleteUseCase: DeleteTodoUseCase
+    private var cancellables = Set<AnyCancellable>()
 
     init(
         fetchUseCase: FetchOpenTodosGroupedUseCase,
@@ -31,6 +32,15 @@ final class InboxViewModel: ObservableObject {
         self.createUseCase = createUseCase
         self.completeUseCase = completeUseCase
         self.deleteUseCase = deleteUseCase
+
+        // Listen for capture notifications
+        NotificationCenter.default.publisher(for: .todoCaptured)
+            .sink { [weak self] _ in
+                Task { @MainActor in
+                    await self?.load()
+                }
+            }
+            .store(in: &cancellables)
     }
 
     /// Load open todos grouped by creation date
