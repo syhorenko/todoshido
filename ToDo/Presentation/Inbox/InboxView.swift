@@ -14,72 +14,76 @@ struct InboxView: View {
     @FocusState private var isInputFocused: Bool
 
     var body: some View {
-        Group {
-            if viewModel.isLoading && viewModel.groups.isEmpty {
-                ProgressView()
-                    .controlSize(.large)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else if viewModel.groups.isEmpty {
-                EmptyStateView(
-                    title: "No Todos",
-                    message: "Your inbox is empty.\nCreate a new todo to get started.",
-                    systemImage: "tray"
-                )
-            } else {
-                List {
-                    Section {
-                        HStack(spacing: AppSpacing.small) {
-                            TextField("New todo...", text: $newTodoText)
-                                .textFieldStyle(.plain)
-                                .foregroundColor(AppColors.primaryText)
-                                .focused($isInputFocused)
-                                .onSubmit {
-                                    Task {
-                                        await createTodo()
-                                    }
-                                }
-
-                            if !newTodoText.isEmpty {
-                                Button(action: {
-                                    Task {
-                                        await createTodo()
-                                    }
-                                }) {
-                                    Image(systemName: "plus.circle.fill")
-                                        .foregroundColor(AppColors.accent)
-                                        .font(.title2)
-                                }
-                                .buttonStyle(.plain)
-                            }
-                        }
-                        .padding(.vertical, AppSpacing.small)
-                    }
-                    .listRowBackground(AppColors.elevated)
-
-                    ForEach(viewModel.groups) { group in
-                        Section {
-                            ForEach(group.items) { item in
-                                TodoRowView(
-                                    item: item,
-                                    onComplete: {
-                                        Task {
-                                            await viewModel.complete(item)
-                                        }
-                                    },
-                                    onDelete: {
-                                        Task {
-                                            await viewModel.delete(item)
-                                        }
-                                    }
-                                )
-                            }
-                        } header: {
-                            SectionHeaderView(title: group.title)
+        VStack(spacing: 0) {
+            // Quick-add field - always visible
+            HStack(spacing: AppSpacing.small) {
+                TextField("New todo...", text: $newTodoText)
+                    .textFieldStyle(.plain)
+                    .foregroundColor(AppColors.primaryText)
+                    .focused($isInputFocused)
+                    .onSubmit {
+                        Task {
+                            await createTodo()
                         }
                     }
+
+                if !newTodoText.isEmpty {
+                    Button(action: {
+                        Task {
+                            await createTodo()
+                        }
+                    }) {
+                        Image(systemName: "plus.circle.fill")
+                            .foregroundColor(AppColors.accent)
+                            .font(.title2)
+                    }
+                    .buttonStyle(.plain)
                 }
-                .listStyle(.plain)
-                .scrollContentBackground(.hidden)
+            }
+            .padding(AppSpacing.medium)
+            .background(AppColors.elevated)
+
+            Divider()
+
+            // Content area
+            Group {
+                if viewModel.isLoading && viewModel.groups.isEmpty {
+                    ProgressView()
+                        .controlSize(.large)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                } else if viewModel.groups.isEmpty {
+                    EmptyStateView(
+                        title: "No Todos",
+                        message: "Your inbox is empty.\nCreate a new todo to get started.",
+                        systemImage: "tray"
+                    )
+                } else {
+                    List {
+                        ForEach(viewModel.groups) { group in
+                            Section {
+                                ForEach(group.items) { item in
+                                    TodoRowView(
+                                        item: item,
+                                        onComplete: {
+                                            Task {
+                                                await viewModel.complete(item)
+                                            }
+                                        },
+                                        onDelete: {
+                                            Task {
+                                                await viewModel.delete(item)
+                                            }
+                                        }
+                                    )
+                                }
+                            } header: {
+                                SectionHeaderView(title: group.title)
+                            }
+                        }
+                    }
+                    .listStyle(.plain)
+                    .scrollContentBackground(.hidden)
+                }
             }
         }
         .background(AppColors.background)
