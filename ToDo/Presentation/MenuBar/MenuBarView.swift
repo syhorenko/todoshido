@@ -32,7 +32,7 @@ struct MenuBarView: View {
                 TextField("New todo...", text: $newTodoText)
                     .textFieldStyle(.plain)
                     .foregroundColor(AppColors.primaryText)
-                    .font(.caption)
+                    .font(.body)
                     .focused($isInputFocused)
                     .onSubmit {
                         Task {
@@ -48,6 +48,7 @@ struct MenuBarView: View {
                     }) {
                         Image(systemName: "plus.circle.fill")
                             .foregroundColor(AppColors.accent)
+                            .font(.title3)
                     }
                     .buttonStyle(.plain)
                 }
