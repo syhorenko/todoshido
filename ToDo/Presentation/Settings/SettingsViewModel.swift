@@ -12,6 +12,7 @@ import Combine
 @MainActor
 final class SettingsViewModel: ObservableObject {
     @Published var preferences: AppPreferences
+    @Published var errorMessage: String?
 
     let preferencesService: PreferencesService
     let launchAtLoginService: LaunchAtLoginService
@@ -33,6 +34,7 @@ final class SettingsViewModel: ObservableObject {
         do {
             try preferencesService.update(preferences)
         } catch {
+            errorMessage = "Failed to save preferences: \(error.localizedDescription)"
             Logger.error("Failed to save preferences: \(error)", category: "settings")
         }
     }
@@ -51,6 +53,7 @@ final class SettingsViewModel: ObservableObject {
             preferences.launchAtLogin = newValue
             savePreferences()
         } catch {
+            errorMessage = "Failed to toggle launch at login: \(error.localizedDescription)"
             Logger.error("Failed to toggle launch at login: \(error)", category: "settings")
         }
     }

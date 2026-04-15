@@ -78,5 +78,14 @@ struct SettingsView: View {
         .formStyle(.grouped)
         .frame(width: 500, height: 400)
         .background(AppColors.background)
+        .alert("Settings Error", isPresented: .constant(viewModel.errorMessage != nil)) {
+            Button("OK") {
+                viewModel.errorMessage = nil
+            }
+        } message: {
+            if let error = viewModel.errorMessage {
+                Text(error)
+            }
+        }
     }
 }
