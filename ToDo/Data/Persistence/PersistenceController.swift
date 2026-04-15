@@ -22,14 +22,17 @@ final class PersistenceController {
                 description.url = URL(fileURLWithPath: "/dev/null")
             }
 
-            // MILESTONE 4: Enable CloudKit sync and history tracking
+            // MILESTONE 4: CloudKit sync temporarily disabled
             // Enable history tracking (required for CloudKit sync)
             description.setOption(true as NSNumber,
                 forKey: NSPersistentHistoryTrackingKey)
             description.setOption(true as NSNumber,
                 forKey: NSPersistentStoreRemoteChangeNotificationPostOptionKey)
 
-            // CloudKit sync now enabled automatically (removed cloudKitContainerOptions = nil)
+            // TEMPORARY: Disable CloudKit sync until container configured in Developer Portal
+            // To enable: create "iCloud.com.syh.ToDoshido" container at:
+            // https://developer.apple.com/account/resources/cloudcontainers/list
+            description.cloudKitContainerOptions = nil
         }
 
         container.loadPersistentStores { storeDescription, error in

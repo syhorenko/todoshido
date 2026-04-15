@@ -82,10 +82,18 @@ final class CloudKitSyncMonitor: ObservableObject {
     }
 
     private func checkAccountStatus() {
-        // Check account status asynchronously to avoid blocking initialization
+        // TEMPORARY: CloudKit container check disabled until container is configured
+        // in Apple Developer Portal with proper provisioning profile
+        // When ready to enable: create container "iCloud.com.syh.ToDoshido" in
+        // https://developer.apple.com/account/resources/cloudcontainers/list
+
+        Logger.info("CloudKit sync disabled - container not configured in Developer Portal", category: "sync")
+        accountStatus = .couldNotDetermine
+
+        // Uncomment below when CloudKit container is properly configured:
+        /*
         Task { @MainActor in
             do {
-                // Use the specific CloudKit container matching our entitlements
                 let cloudKitContainer = CKContainer(identifier: "iCloud.com.syh.ToDoshido")
 
                 let status: CKAccountStatus = try await withCheckedThrowingContinuation { continuation in
@@ -101,10 +109,10 @@ final class CloudKitSyncMonitor: ObservableObject {
                 self.accountStatus = status
             } catch {
                 Logger.error("CloudKit account status error: \(error)", category: "sync")
-                // Default to couldNotDetermine if check fails
                 self.accountStatus = .couldNotDetermine
             }
         }
+        */
     }
 
     var statusDescription: String {
