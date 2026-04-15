@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep -E \"\\\\.\\(swift|json|plist|yaml\\)$\")",
+      "Bash(git -C /Users/serhii.horenko/Documents/xcode-workspace/ToDo-ios/ToDo log --oneline --all -20)",
+      "Bash(xcodebuild -project ToDo.xcodeproj -scheme ToDo -destination 'platform=macOS' clean build)",
+      "Bash(git add *)"
+    ]
+  }
+}
