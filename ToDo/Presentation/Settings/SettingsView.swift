@@ -13,10 +13,18 @@ struct SettingsView: View {
 
     var body: some View {
         Form {
-            // Hotkey Section (placeholder for Session 5)
+            // Hotkey Section
             Section("Global Hotkey") {
-                Text("Hotkey picker coming soon...")
-                    .foregroundColor(AppColors.secondaryText)
+                HotkeyPicker(
+                    keyCode: $viewModel.preferences.hotkeyKeyCode,
+                    modifiers: $viewModel.preferences.hotkeyModifiers
+                )
+                .onChange(of: viewModel.preferences.hotkeyKeyCode) { _ in
+                    viewModel.savePreferences()
+                }
+                .onChange(of: viewModel.preferences.hotkeyModifiers) { _ in
+                    viewModel.savePreferences()
+                }
             }
 
             // Duplicate Detection Section
