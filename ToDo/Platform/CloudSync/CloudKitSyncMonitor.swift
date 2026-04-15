@@ -83,7 +83,7 @@ final class CloudKitSyncMonitor: ObservableObject {
 
     private func checkAccountStatus() {
         // Use the specific CloudKit container matching our entitlements
-        let cloudKitContainer = CKContainer(identifier: "iCloud.com.cm.ToDo")
+        let cloudKitContainer = CKContainer(identifier: "iCloud.com.syh.ToDoshido")
         cloudKitContainer.accountStatus { [weak self] status, error in
             Task { @MainActor in
                 self?.accountStatus = status

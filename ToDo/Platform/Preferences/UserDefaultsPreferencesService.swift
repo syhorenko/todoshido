@@ -14,7 +14,7 @@ final class UserDefaultsPreferencesService: PreferencesService {
     @Published private(set) var preferences: AppPreferences
 
     private let userDefaults: UserDefaults
-    private let key = "com.todo.preferences"
+    private let key = "com.todoshido.preferences"
 
     init(userDefaults: UserDefaults = .standard) {
         self.userDefaults = userDefaults

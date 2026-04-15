@@ -10,7 +10,7 @@ import Foundation
 /// In-memory implementation of TodoRepository for SwiftUI previews and testing
 final class MockTodoRepository: TodoRepository {
     private var items: [TodoItem] = []
-    private let queue = DispatchQueue(label: "com.todo.mockrepository")
+    private let queue = DispatchQueue(label: "com.todoshido.mockrepository")
 
     init(preloadSampleData: Bool = true) {
         if preloadSampleData {

@@ -127,7 +127,7 @@ final class AppCoordinator: ObservableObject {
         let config = HotkeyConfiguration(
             keyCode: prefs.hotkeyKeyCode,
             modifiers: prefs.hotkeyModifiers,
-            identifier: "com.todo.capture"
+            identifier: "com.todoshido.capture"
         )
 
         do {
@@ -165,13 +165,13 @@ final class AppCoordinator: ObservableObject {
 
     private func updateHotkey(keyCode: UInt32, modifiers: UInt32) async {
         // Unregister current hotkey
-        hotkeyService.unregister(identifier: "com.todo.capture")
+        hotkeyService.unregister(identifier: "com.todoshido.capture")
 
         // Register new hotkey
         let config = HotkeyConfiguration(
             keyCode: keyCode,
             modifiers: modifiers,
-            identifier: "com.todo.capture"
+            identifier: "com.todoshido.capture"
         )
 
         do {

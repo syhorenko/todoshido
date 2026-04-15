@@ -22,6 +22,6 @@ struct HotkeyConfiguration {
     static let captureShortcut = HotkeyConfiguration(
         keyCode: 17,  // 'T' key
         modifiers: UInt32(cmdKey | shiftKey),
-        identifier: "com.todo.capture"
+        identifier: "com.todoshido.capture"
     )
 }

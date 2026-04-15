@@ -10,7 +10,7 @@ import os.log
 
 /// Simple logging wrapper
 enum Logger {
-    private static let subsystem = Bundle.main.bundleIdentifier ?? "com.todo.app"
+    private static let subsystem = Bundle.main.bundleIdentifier ?? "com.todoshido.app"
 
     static func info(_ message: String, category: String = "general") {
         os_log("%{public}@", log: OSLog(subsystem: subsystem, category: category), type: .info, message)

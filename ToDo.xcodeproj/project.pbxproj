@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXFileReference section */
-		3C349AC12F8F884B00EC220A /* ToDo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ToDo.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		3C349AC12F8F884B00EC220A /* ToDoshido.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ToDoshido.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -16,12 +16,12 @@
 			membershipExceptions = (
 				Info.plist,
 			);
-			target = 3C349AC02F8F884B00EC220A /* ToDo */;
+			target = 3C349AC02F8F884B00EC220A /* ToDoshido */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		3C349AC32F8F884B00EC220A /* ToDo */ = {
+		3C349AC32F8F884B00EC220A /* ToDoshido */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
 				3C349ACE2F8F884D00EC220A /* Exceptions for "ToDo" folder in "ToDo" target */,
@@ -45,7 +45,7 @@
 		3C349AB82F8F884B00EC220A = {
 			isa = PBXGroup;
 			children = (
-				3C349AC32F8F884B00EC220A /* ToDo */,
+				3C349AC32F8F884B00EC220A /* ToDoshido */,
 				3C349AC22F8F884B00EC220A /* Products */,
 			);
 			sourceTree = "<group>";
@@ -53,7 +53,7 @@
 		3C349AC22F8F884B00EC220A /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				3C349AC12F8F884B00EC220A /* ToDo.app */,
+				3C349AC12F8F884B00EC220A /* ToDoshido.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -61,7 +61,7 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		3C349AC02F8F884B00EC220A /* ToDo */ = {
+		3C349AC02F8F884B00EC220A /* ToDoshido */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 3C349ACF2F8F884D00EC220A /* Build configuration list for PBXNativeTarget "ToDo" */;
 			buildPhases = (
@@ -74,13 +74,13 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				3C349AC32F8F884B00EC220A /* ToDo */,
+				3C349AC32F8F884B00EC220A /* ToDoshido */,
 			);
-			name = ToDo;
+			name = ToDoshido;
 			packageProductDependencies = (
 			);
 			productName = ToDo;
-			productReference = 3C349AC12F8F884B00EC220A /* ToDo.app */;
+			productReference = 3C349AC12F8F884B00EC220A /* ToDoshido.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -112,7 +112,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				3C349AC02F8F884B00EC220A /* ToDo */,
+				3C349AC02F8F884B00EC220A /* ToDoshido */,
 			);
 		};
 /* End PBXProject section */
@@ -143,8 +143,9 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
@@ -165,8 +166,9 @@
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 26.4;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.cm.ToDo;
+				PRODUCT_BUNDLE_IDENTIFIER = com.syh.ToDoshido;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				REGISTER_APP_GROUPS = YES;
 				SDKROOT = auto;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -186,8 +188,9 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
@@ -208,8 +211,9 @@
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 26.4;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.cm.ToDo;
+				PRODUCT_BUNDLE_IDENTIFIER = com.syh.ToDoshido;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				REGISTER_APP_GROUPS = YES;
 				SDKROOT = auto;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
