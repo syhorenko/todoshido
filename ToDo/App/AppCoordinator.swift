@@ -50,7 +50,10 @@ final class AppCoordinator: ObservableObject {
             monitor: cloudSyncMonitor
         )
 
-        let createUseCase = CreateTodoUseCase(repository: repository)
+        let createUseCase = CreateTodoUseCase(
+            repository: repository,
+            preferencesService: preferencesService
+        )
         self.captureUseCase = CaptureTodoFromClipboardUseCase(
             pasteboardService: pasteboardService,
             activeAppService: activeAppService,
@@ -65,7 +68,10 @@ final class AppCoordinator: ObservableObject {
     /// Create Inbox view with injected dependencies
     func makeInboxView() -> InboxView {
         let fetchUseCase = FetchOpenTodosGroupedUseCase(repository: repository)
-        let createUseCase = CreateTodoUseCase(repository: repository)
+        let createUseCase = CreateTodoUseCase(
+            repository: repository,
+            preferencesService: preferencesService
+        )
         let completeUseCase = CompleteTodoUseCase(repository: repository)
         let deleteUseCase = DeleteTodoUseCase(repository: repository)
         let updatePriorityUseCase = UpdateTodoPriorityUseCase(repository: repository)
@@ -100,7 +106,10 @@ final class AppCoordinator: ObservableObject {
     func makeMenuBarView() -> MenuBarView {
         let fetchUseCase = FetchRecentTodosUseCase(repository: repository)
         let completeUseCase = CompleteTodoUseCase(repository: repository)
-        let createUseCase = CreateTodoUseCase(repository: repository)
+        let createUseCase = CreateTodoUseCase(
+            repository: repository,
+            preferencesService: preferencesService
+        )
         let updatePriorityUseCase = UpdateTodoPriorityUseCase(repository: repository)
 
         let viewModel = MenuBarViewModel(

@@ -10,9 +10,11 @@ import Foundation
 /// Use case for creating a new todo item
 final class CreateTodoUseCase {
     private let repository: TodoRepository
+    private let preferencesService: PreferencesService
 
-    init(repository: TodoRepository) {
+    init(repository: TodoRepository, preferencesService: PreferencesService) {
         self.repository = repository
+        self.preferencesService = preferencesService
     }
 
     /// Create a new todo item with the given text and capture method
@@ -29,6 +31,7 @@ final class CreateTodoUseCase {
         sourceBundleID: String? = nil
     ) async throws -> TodoItem {
         let now = Date()
+        let preferences = preferencesService.preferences
 
         let item = TodoItem(
             id: UUID(),
@@ -39,11 +42,12 @@ final class CreateTodoUseCase {
             status: .active,
             sourceAppName: sourceAppName,
             sourceBundleID: sourceBundleID,
-            captureMethod: captureMethod
+            captureMethod: captureMethod,
+            priority: preferences.defaultTodoPriority
         )
 
         try await repository.createTodo(item)
-        Logger.info("Created todo via \(captureMethod): \(text.prefix(50))", category: "usecase")
+        Logger.info("Created todo via \(captureMethod) with \(item.priority) priority: \(text.prefix(50))", category: "usecase")
 
         return item
     }

@@ -119,7 +119,10 @@ struct InboxView: View {
         InboxView(
             viewModel: InboxViewModel(
                 fetchUseCase: FetchOpenTodosGroupedUseCase(repository: MockTodoRepository()),
-                createUseCase: CreateTodoUseCase(repository: MockTodoRepository()),
+                createUseCase: CreateTodoUseCase(
+                    repository: MockTodoRepository(),
+                    preferencesService: MockPreferencesService()
+                ),
                 completeUseCase: CompleteTodoUseCase(repository: MockTodoRepository()),
                 deleteUseCase: DeleteTodoUseCase(repository: MockTodoRepository()),
                 updatePriorityUseCase: UpdateTodoPriorityUseCase(repository: MockTodoRepository())
