@@ -15,6 +15,9 @@ final class AppCoordinator: ObservableObject {
     private let repository: TodoRepository
     private let hotkeyService: HotkeyService
     private let captureUseCase: CaptureTodoFromClipboardUseCase
+    private let preferencesService: PreferencesService
+    private let launchAtLoginService: LaunchAtLoginService
+    private let cloudSyncStatusService: CloudSyncStatusService
 
     // Published state for capture HUD
     @Published var captureMessage: String?
@@ -28,6 +31,11 @@ final class AppCoordinator: ObservableObject {
     ) {
         self.repository = repository
         self.hotkeyService = hotkeyService
+
+        // Initialize services
+        self.preferencesService = UserDefaultsPreferencesService()
+        self.launchAtLoginService = SMAppLaunchAtLoginService()
+        self.cloudSyncStatusService = CloudKitSyncStatusService()
 
         let createUseCase = CreateTodoUseCase(repository: repository)
         self.captureUseCase = CaptureTodoFromClipboardUseCase(
@@ -84,6 +92,17 @@ final class AppCoordinator: ObservableObject {
         )
 
         return MenuBarView(viewModel: viewModel)
+    }
+
+    /// Create Settings view with injected dependencies
+    func makeSettingsView() -> SettingsView {
+        let viewModel = SettingsViewModel(
+            preferencesService: preferencesService,
+            launchAtLoginService: launchAtLoginService,
+            cloudSyncStatusService: cloudSyncStatusService
+        )
+
+        return SettingsView(viewModel: viewModel)
     }
 
     // MARK: - Hotkey Setup

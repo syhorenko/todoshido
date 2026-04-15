@@ -44,6 +44,10 @@ struct ToDoApp: App {
         } label: {
             Image(systemName: "checkmark.circle")
         }
+
+        Settings {
+            coordinator.makeSettingsView()
+        }
     }
 
     private func runMigration() async {
