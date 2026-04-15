@@ -73,6 +73,11 @@ struct InboxView: View {
                                             Task {
                                                 await viewModel.delete(item)
                                             }
+                                        },
+                                        onChangePriority: { priority in
+                                            Task {
+                                                await viewModel.changePriority(item, to: priority)
+                                            }
                                         }
                                     )
                                 }
@@ -116,7 +121,8 @@ struct InboxView: View {
                 fetchUseCase: FetchOpenTodosGroupedUseCase(repository: MockTodoRepository()),
                 createUseCase: CreateTodoUseCase(repository: MockTodoRepository()),
                 completeUseCase: CompleteTodoUseCase(repository: MockTodoRepository()),
-                deleteUseCase: DeleteTodoUseCase(repository: MockTodoRepository())
+                deleteUseCase: DeleteTodoUseCase(repository: MockTodoRepository()),
+                updatePriorityUseCase: UpdateTodoPriorityUseCase(repository: MockTodoRepository())
             )
         )
     }

@@ -19,16 +19,19 @@ final class MenuBarViewModel: ObservableObject {
     private let fetchUseCase: FetchRecentTodosUseCase
     private let completeUseCase: CompleteTodoUseCase
     private let createUseCase: CreateTodoUseCase
+    private let updatePriorityUseCase: UpdateTodoPriorityUseCase
     private var cancellables = Set<AnyCancellable>()
 
     init(
         fetchUseCase: FetchRecentTodosUseCase,
         completeUseCase: CompleteTodoUseCase,
-        createUseCase: CreateTodoUseCase
+        createUseCase: CreateTodoUseCase,
+        updatePriorityUseCase: UpdateTodoPriorityUseCase
     ) {
         self.fetchUseCase = fetchUseCase
         self.completeUseCase = completeUseCase
         self.createUseCase = createUseCase
+        self.updatePriorityUseCase = updatePriorityUseCase
 
         // Listen for capture notifications to auto-refresh
         NotificationCenter.default.publisher(for: .todoCaptured)
@@ -83,6 +86,20 @@ final class MenuBarViewModel: ObservableObject {
         } catch {
             self.error = error
             Logger.error("Failed to create todo from menu bar: \(error)", category: "menubar")
+        }
+    }
+
+    /// Change priority of a todo item
+    /// - Parameters:
+    ///   - item: The todo item to update
+    ///   - priority: The new priority level
+    func changePriority(_ item: TodoItem, to priority: TodoPriority) async {
+        do {
+            try await updatePriorityUseCase.execute(item, priority: priority)
+            await load() // Refresh list
+        } catch {
+            self.error = error
+            Logger.error("Failed to change priority: \(error)", category: "menubar")
         }
     }
 }

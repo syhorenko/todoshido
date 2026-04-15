@@ -68,12 +68,14 @@ final class AppCoordinator: ObservableObject {
         let createUseCase = CreateTodoUseCase(repository: repository)
         let completeUseCase = CompleteTodoUseCase(repository: repository)
         let deleteUseCase = DeleteTodoUseCase(repository: repository)
+        let updatePriorityUseCase = UpdateTodoPriorityUseCase(repository: repository)
 
         let viewModel = InboxViewModel(
             fetchUseCase: fetchUseCase,
             createUseCase: createUseCase,
             completeUseCase: completeUseCase,
-            deleteUseCase: deleteUseCase
+            deleteUseCase: deleteUseCase,
+            updatePriorityUseCase: updatePriorityUseCase
         )
 
         return InboxView(viewModel: viewModel)
@@ -99,11 +101,13 @@ final class AppCoordinator: ObservableObject {
         let fetchUseCase = FetchRecentTodosUseCase(repository: repository)
         let completeUseCase = CompleteTodoUseCase(repository: repository)
         let createUseCase = CreateTodoUseCase(repository: repository)
+        let updatePriorityUseCase = UpdateTodoPriorityUseCase(repository: repository)
 
         let viewModel = MenuBarViewModel(
             fetchUseCase: fetchUseCase,
             completeUseCase: completeUseCase,
-            createUseCase: createUseCase
+            createUseCase: createUseCase,
+            updatePriorityUseCase: updatePriorityUseCase
         )
 
         return MenuBarView(viewModel: viewModel)

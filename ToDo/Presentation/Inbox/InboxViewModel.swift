@@ -20,18 +20,21 @@ final class InboxViewModel: ObservableObject {
     private let createUseCase: CreateTodoUseCase
     private let completeUseCase: CompleteTodoUseCase
     private let deleteUseCase: DeleteTodoUseCase
+    private let updatePriorityUseCase: UpdateTodoPriorityUseCase
     private var cancellables = Set<AnyCancellable>()
 
     init(
         fetchUseCase: FetchOpenTodosGroupedUseCase,
         createUseCase: CreateTodoUseCase,
         completeUseCase: CompleteTodoUseCase,
-        deleteUseCase: DeleteTodoUseCase
+        deleteUseCase: DeleteTodoUseCase,
+        updatePriorityUseCase: UpdateTodoPriorityUseCase
     ) {
         self.fetchUseCase = fetchUseCase
         self.createUseCase = createUseCase
         self.completeUseCase = completeUseCase
         self.deleteUseCase = deleteUseCase
+        self.updatePriorityUseCase = updatePriorityUseCase
 
         // Listen for capture notifications
         NotificationCenter.default.publisher(for: .todoCaptured)
@@ -98,6 +101,20 @@ final class InboxViewModel: ObservableObject {
         } catch {
             self.error = error
             Logger.error("Failed to create todo: \(error)", category: "inbox")
+        }
+    }
+
+    /// Change priority of a todo item
+    /// - Parameters:
+    ///   - item: The todo item to update
+    ///   - priority: The new priority level
+    func changePriority(_ item: TodoItem, to priority: TodoPriority) async {
+        do {
+            try await updatePriorityUseCase.execute(item, priority: priority)
+            await load() // Refresh list
+        } catch {
+            self.error = error
+            Logger.error("Failed to change priority: \(error)", category: "inbox")
         }
     }
 }

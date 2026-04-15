@@ -89,6 +89,11 @@ struct MenuBarView: View {
                                         }
                                     },
                                     onDelete: {},  // No delete in menu bar
+                                    onChangePriority: { priority in
+                                        Task {
+                                            await viewModel.changePriority(item, to: priority)
+                                        }
+                                    },
                                     isCompact: true
                                 )
                                 .padding(.horizontal, AppSpacing.medium)
