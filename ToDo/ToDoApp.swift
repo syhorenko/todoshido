@@ -6,27 +6,38 @@
 //
 
 import SwiftUI
-import SwiftData
 
 @main
 struct ToDoApp: App {
-    var sharedModelContainer: ModelContainer = {
-        let schema = Schema([
-            Item.self,
-        ])
-        let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
-
-        do {
-            return try ModelContainer(for: schema, configurations: [modelConfiguration])
-        } catch {
-            fatalError("Could not create ModelContainer: \(error)")
-        }
-    }()
+    let persistenceController = PersistenceController.shared
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            MainView(coordinator: makeCoordinator())
+                .task {
+                    await runMigration()
+                }
         }
-        .modelContainer(sharedModelContainer)
+    }
+
+    private func makeCoordinator() -> AppCoordinator {
+        let repository = CoreDataTodoRepository(
+            context: persistenceController.container.viewContext
+        )
+        return AppCoordinator(repository: repository)
+    }
+
+    private func runMigration() async {
+        let migrator = SwiftDataMigrator()
+        let repository = CoreDataTodoRepository(
+            context: persistenceController.container.viewContext
+        )
+
+        do {
+            try await migrator.migrateIfNeeded(to: repository)
+        } catch {
+            Logger.error("Migration failed: \(error)", category: "app")
+            // Non-fatal - app continues with empty state
+        }
     }
 }
