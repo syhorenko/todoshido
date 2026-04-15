@@ -15,6 +15,13 @@ struct ArchivedTodoRowView: View {
 
     var body: some View {
         HStack(alignment: .top, spacing: AppSpacing.medium) {
+            // Priority badge (grayed out for archived items)
+            Circle()
+                .fill(item.priority.color.opacity(0.5))
+                .frame(width: 8, height: 8)
+                .padding(.top, 6)  // Align with first line of text
+                .accessibilityLabel(item.priority.displayName + " priority")
+
             VStack(alignment: .leading, spacing: AppSpacing.xSmall) {
                 Text(item.text)
                     .foregroundColor(AppColors.secondaryText)

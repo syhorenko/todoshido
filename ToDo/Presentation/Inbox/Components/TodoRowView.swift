@@ -12,10 +12,18 @@ struct TodoRowView: View {
     let item: TodoItem
     let onComplete: () -> Void
     let onDelete: () -> Void
+    var onChangePriority: ((TodoPriority) -> Void)?
     var isCompact: Bool = false  // Compact mode for menu bar
 
     var body: some View {
         HStack(alignment: .top, spacing: isCompact ? AppSpacing.small : AppSpacing.medium) {
+            // Priority badge
+            Circle()
+                .fill(item.priority.color)
+                .frame(width: 8, height: 8)
+                .padding(.top, 6)  // Align with first line of text
+                .accessibilityLabel(item.priority.displayName + " priority")
+
             VStack(alignment: .leading, spacing: AppSpacing.xSmall) {
                 Text(item.text)
                     .foregroundColor(AppColors.primaryText)
@@ -49,6 +57,28 @@ struct TodoRowView: View {
         }
         .padding(.vertical, isCompact ? AppSpacing.xSmall : AppSpacing.small)
         .listRowBackground(AppColors.surface)
+        .contextMenu {
+            if let onChangePriority = onChangePriority {
+                // Priority submenu
+                Menu("Priority") {
+                    ForEach([TodoPriority.low, .normal, .high, .urgent], id: \.self) { priority in
+                        Button(action: { onChangePriority(priority) }) {
+                            HStack {
+                                Text(priority.displayName)
+                                if item.priority == priority {
+                                    Image(systemName: "checkmark")
+                                }
+                            }
+                        }
+                    }
+                }
+
+                Divider()
+            }
+
+            Button("Mark Complete", action: onComplete)
+            Button("Delete", role: .destructive, action: onDelete)
+        }
         // Only show swipe actions in non-compact mode
         .if(!isCompact) { view in
             view.swipeActions(edge: .trailing, allowsFullSwipe: true) {
@@ -91,7 +121,8 @@ extension View {
         TodoRowView(
             item: sampleItem,
             onComplete: {},
-            onDelete: {}
+            onDelete: {},
+            onChangePriority: { _ in }
         )
     }
     .listStyle(.plain)
