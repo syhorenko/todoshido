@@ -82,14 +82,27 @@ final class CloudKitSyncMonitor: ObservableObject {
     }
 
     private func checkAccountStatus() {
-        // Use the specific CloudKit container matching our entitlements
-        let cloudKitContainer = CKContainer(identifier: "iCloud.com.syh.ToDoshido")
-        cloudKitContainer.accountStatus { [weak self] status, error in
-            Task { @MainActor in
-                self?.accountStatus = status
-                if let error = error {
-                    Logger.error("CloudKit account status error: \(error)", category: "sync")
+        // Check account status asynchronously to avoid blocking initialization
+        Task { @MainActor in
+            do {
+                // Use the specific CloudKit container matching our entitlements
+                let cloudKitContainer = CKContainer(identifier: "iCloud.com.syh.ToDoshido")
+
+                let status: CKAccountStatus = try await withCheckedThrowingContinuation { continuation in
+                    cloudKitContainer.accountStatus { status, error in
+                        if let error = error {
+                            continuation.resume(throwing: error)
+                        } else {
+                            continuation.resume(returning: status)
+                        }
+                    }
                 }
+
+                self.accountStatus = status
+            } catch {
+                Logger.error("CloudKit account status error: \(error)", category: "sync")
+                // Default to couldNotDetermine if check fails
+                self.accountStatus = .couldNotDetermine
             }
         }
     }
