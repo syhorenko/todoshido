@@ -12,25 +12,29 @@ struct TodoRowView: View {
     let item: TodoItem
     let onComplete: () -> Void
     let onDelete: () -> Void
+    var isCompact: Bool = false  // Compact mode for menu bar
 
     var body: some View {
-        HStack(alignment: .top, spacing: AppSpacing.medium) {
+        HStack(alignment: .top, spacing: isCompact ? AppSpacing.small : AppSpacing.medium) {
             VStack(alignment: .leading, spacing: AppSpacing.xSmall) {
                 Text(item.text)
                     .foregroundColor(AppColors.primaryText)
-                    .lineLimit(3)
-                    .font(.body)
+                    .lineLimit(isCompact ? 2 : 3)
+                    .font(isCompact ? .caption : .body)
 
-                HStack(spacing: AppSpacing.small) {
-                    if let appName = item.sourceAppName {
-                        Label(appName, systemImage: "app.fill")
+                // Hide metadata in compact mode
+                if !isCompact {
+                    HStack(spacing: AppSpacing.small) {
+                        if let appName = item.sourceAppName {
+                            Label(appName, systemImage: "app.fill")
+                                .font(.caption)
+                                .foregroundColor(AppColors.secondaryText)
+                        }
+
+                        Text(item.createdAt, style: .time)
                             .font(.caption)
                             .foregroundColor(AppColors.secondaryText)
                     }
-
-                    Text(item.createdAt, style: .time)
-                        .font(.caption)
-                        .foregroundColor(AppColors.secondaryText)
                 }
             }
 
@@ -38,17 +42,34 @@ struct TodoRowView: View {
 
             Button(action: onComplete) {
                 Image(systemName: "checkmark.circle")
-                    .font(.title2)
+                    .font(isCompact ? .body : .title2)
                     .foregroundColor(AppColors.accent)
             }
             .buttonStyle(.plain)
         }
-        .padding(.vertical, AppSpacing.small)
+        .padding(.vertical, isCompact ? AppSpacing.xSmall : AppSpacing.small)
         .listRowBackground(AppColors.surface)
-        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-            Button(role: .destructive, action: onDelete) {
-                Label("Delete", systemImage: "trash")
+        // Only show swipe actions in non-compact mode
+        .if(!isCompact) { view in
+            view.swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                Button(role: .destructive, action: onDelete) {
+                    Label("Delete", systemImage: "trash")
+                }
             }
+        }
+    }
+}
+
+// MARK: - View Extension
+
+extension View {
+    /// Conditionally apply a transformation to a view
+    @ViewBuilder
+    func `if`<Transform: View>(_ condition: Bool, transform: (Self) -> Transform) -> some View {
+        if condition {
+            transform(self)
+        } else {
+            self
         }
     }
 }
