@@ -11,7 +11,7 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		3C349ACE2F8F884D00EC220A /* Exceptions for "ToDo" folder in "ToDo" target */ = {
+		3C349ACE2F8F884D00EC220A /* Exceptions for "ToDo" folder in "ToDoshido" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
@@ -21,10 +21,10 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		3C349AC32F8F884B00EC220A /* ToDoshido */ = {
+		3C349AC32F8F884B00EC220A /* ToDo */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				3C349ACE2F8F884D00EC220A /* Exceptions for "ToDo" folder in "ToDo" target */,
+				3C349ACE2F8F884D00EC220A /* Exceptions for "ToDo" folder in "ToDoshido" target */,
 			);
 			path = ToDo;
 			sourceTree = "<group>";
@@ -45,7 +45,7 @@
 		3C349AB82F8F884B00EC220A = {
 			isa = PBXGroup;
 			children = (
-				3C349AC32F8F884B00EC220A /* ToDoshido */,
+				3C349AC32F8F884B00EC220A /* ToDo */,
 				3C349AC22F8F884B00EC220A /* Products */,
 			);
 			sourceTree = "<group>";
@@ -63,7 +63,7 @@
 /* Begin PBXNativeTarget section */
 		3C349AC02F8F884B00EC220A /* ToDoshido */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 3C349ACF2F8F884D00EC220A /* Build configuration list for PBXNativeTarget "ToDo" */;
+			buildConfigurationList = 3C349ACF2F8F884D00EC220A /* Build configuration list for PBXNativeTarget "ToDoshido" */;
 			buildPhases = (
 				3C349ABD2F8F884B00EC220A /* Sources */,
 				3C349ABE2F8F884B00EC220A /* Frameworks */,
@@ -74,7 +74,7 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				3C349AC32F8F884B00EC220A /* ToDoshido */,
+				3C349AC32F8F884B00EC220A /* ToDo */,
 			);
 			name = ToDoshido;
 			packageProductDependencies = (
@@ -354,7 +354,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		3C349ACF2F8F884D00EC220A /* Build configuration list for PBXNativeTarget "ToDo" */ = {
+		3C349ACF2F8F884D00EC220A /* Build configuration list for PBXNativeTarget "ToDoshido" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				3C349AD02F8F884D00EC220A /* Debug */,

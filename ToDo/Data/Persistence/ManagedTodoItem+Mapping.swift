@@ -20,6 +20,7 @@ final class ManagedTodoItem: NSManagedObject {
     @NSManaged var sourceAppName: String?
     @NSManaged var sourceBundleID: String?
     @NSManaged var isArchived: Bool
+    @NSManaged var priority: Int16
 }
 
 // MARK: - Domain Model Mapping
@@ -36,7 +37,8 @@ extension ManagedTodoItem {
             status: TodoStatus(rawValue: status) ?? .active,
             sourceAppName: sourceAppName,
             sourceBundleID: sourceBundleID,
-            captureMethod: CaptureMethod(rawValue: captureMethod) ?? .manualEntry
+            captureMethod: CaptureMethod(rawValue: captureMethod) ?? .manualEntry,
+            priority: TodoPriority(rawValue: priority) ?? .normal
         )
     }
 
@@ -52,6 +54,7 @@ extension ManagedTodoItem {
         sourceAppName = domain.sourceAppName
         sourceBundleID = domain.sourceBundleID
         isArchived = domain.status == .archived
+        priority = domain.priority.rawValue
     }
 
     /// Create new Core Data entity from domain model

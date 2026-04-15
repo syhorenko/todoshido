@@ -67,6 +67,7 @@ final class PersistenceController {
         sampleItem.setValue(0, forKey: "status") // active
         sampleItem.setValue(1, forKey: "captureMethod") // manualEntry
         sampleItem.setValue(false, forKey: "isArchived")
+        sampleItem.setValue(1, forKey: "priority") // normal
 
         do {
             try viewContext.save()
