@@ -17,14 +17,20 @@ final class PersistenceController {
     init(inMemory: Bool = false) {
         container = NSPersistentCloudKitContainer(name: "TodoDataModel")
 
-        if inMemory {
-            container.persistentStoreDescriptions.first?.url = URL(fileURLWithPath: "/dev/null")
-        }
+        if let description = container.persistentStoreDescriptions.first {
+            if inMemory {
+                description.url = URL(fileURLWithPath: "/dev/null")
+            }
 
-        // Disable CloudKit sync for Milestone 1
-        // This can be enabled in Milestone 4 by removing this line
-        let description = container.persistentStoreDescriptions.first
-        description?.cloudKitContainerOptions = nil
+            // MILESTONE 4: Enable CloudKit sync and history tracking
+            // Enable history tracking (required for CloudKit sync)
+            description.setOption(true as NSNumber,
+                forKey: NSPersistentHistoryTrackingKey)
+            description.setOption(true as NSNumber,
+                forKey: NSPersistentStoreRemoteChangeNotificationPostOptionKey)
+
+            // CloudKit sync now enabled automatically (removed cloudKitContainerOptions = nil)
+        }
 
         container.loadPersistentStores { storeDescription, error in
             if let error = error as NSError? {
