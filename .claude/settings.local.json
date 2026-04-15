@@ -11,7 +11,13 @@
       "Bash(git -C /Users/serhii.horenko/Documents/xcode-workspace/ToDo-ios/ToDo show --stat --oneline)",
       "Read(//Users/serhii.horenko/.claude/plans/**)",
       "Bash(head -n 593 /Users/serhii.horenko/.claude/plans/cuddly-roaming-quilt.md)",
-      "Bash(mv /tmp/milestone2_plan.md /Users/serhii.horenko/.claude/plans/cuddly-roaming-quilt.md)"
+      "Bash(mv /tmp/milestone2_plan.md /Users/serhii.horenko/.claude/plans/cuddly-roaming-quilt.md)",
+      "Bash(ls -la /Users/serhii.horenko/.claude/plans/*.md)",
+      "Bash(cp /Users/serhii.horenko/.claude/plans/cuddly-roaming-quilt-agent-a1c7735506b1180ba.md /Users/serhii.horenko/.claude/plans/cuddly-roaming-quilt.md)",
+      "Bash(sw_vers)"
+    ],
+    "additionalDirectories": [
+      "/Users/serhii.horenko/.claude/plans"
     ]
   }
 }

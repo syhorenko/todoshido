@@ -60,12 +60,34 @@ struct SettingsView: View {
 
             // iCloud Section
             Section("iCloud Sync") {
-                HStack {
-                    Text("Status:")
-                    Spacer()
-                    Text(viewModel.cloudSyncStatusService.statusDescription)
-                        .foregroundColor(AppColors.secondaryText)
+                VStack(alignment: .leading, spacing: AppSpacing.small) {
+                    HStack {
+                        Text("Status:")
+                        Spacer()
+
+                        if viewModel.cloudSyncStatusService.isSyncing {
+                            ProgressView()
+                                .controlSize(.small)
+                                .padding(.trailing, AppSpacing.xSmall)
+                        }
+
+                        Text(viewModel.cloudSyncStatusService.statusDescription)
+                            .foregroundColor(
+                                viewModel.cloudSyncStatusService.isEnabled
+                                    ? AppColors.accent
+                                    : AppColors.secondaryText
+                            )
+                    }
+
+                    if !viewModel.cloudSyncStatusService.isEnabled {
+                        Text("Sign in to iCloud in System Settings to enable sync")
+                            .font(.caption)
+                            .foregroundColor(AppColors.secondaryText)
+                    }
                 }
+            }
+            .onReceive(viewModel.cloudSyncStatusService.statusPublisher) { _ in
+                // Trigger UI refresh when status changes
             }
 
             // Reset Button
