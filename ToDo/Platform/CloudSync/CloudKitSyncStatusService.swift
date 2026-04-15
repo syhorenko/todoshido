@@ -6,15 +6,13 @@
 //
 
 import Foundation
-import CloudKit
 
 /// CloudKit-based sync status implementation
 /// Read-only placeholder for Milestone 4 (iCloud Sync)
 final class CloudKitSyncStatusService: CloudSyncStatusService {
-    private let container: CKContainer
 
-    init(container: CKContainer = .default()) {
-        self.container = container
+    init() {
+        // Empty init - no CloudKit access until Milestone 4
     }
 
     var isEnabled: Bool {
