@@ -6,7 +6,12 @@
       "Bash(xcodebuild -project ToDo.xcodeproj -scheme ToDo -destination 'platform=macOS' clean build)",
       "Bash(git add *)",
       "Bash(git commit -m ' *)",
-      "Bash(xcodebuild -project ToDo.xcodeproj -scheme ToDo build)"
+      "Bash(xcodebuild -project ToDo.xcodeproj -scheme ToDo build)",
+      "Bash(git -C /Users/serhii.horenko/Documents/xcode-workspace/ToDo-ios/ToDo log --oneline --all --decorate -20)",
+      "Bash(git -C /Users/serhii.horenko/Documents/xcode-workspace/ToDo-ios/ToDo show --stat --oneline)",
+      "Read(//Users/serhii.horenko/.claude/plans/**)",
+      "Bash(head -n 593 /Users/serhii.horenko/.claude/plans/cuddly-roaming-quilt.md)",
+      "Bash(mv /tmp/milestone2_plan.md /Users/serhii.horenko/.claude/plans/cuddly-roaming-quilt.md)"
     ]
   }
 }
