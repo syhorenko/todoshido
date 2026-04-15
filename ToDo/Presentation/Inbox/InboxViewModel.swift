@@ -17,15 +17,18 @@ final class InboxViewModel: ObservableObject {
     @Published var error: Error?
 
     private let fetchUseCase: FetchOpenTodosGroupedUseCase
+    private let createUseCase: CreateTodoUseCase
     private let completeUseCase: CompleteTodoUseCase
     private let deleteUseCase: DeleteTodoUseCase
 
     init(
         fetchUseCase: FetchOpenTodosGroupedUseCase,
+        createUseCase: CreateTodoUseCase,
         completeUseCase: CompleteTodoUseCase,
         deleteUseCase: DeleteTodoUseCase
     ) {
         self.fetchUseCase = fetchUseCase
+        self.createUseCase = createUseCase
         self.completeUseCase = completeUseCase
         self.deleteUseCase = deleteUseCase
     }
@@ -66,6 +69,25 @@ final class InboxViewModel: ObservableObject {
         } catch {
             self.error = error
             Logger.error("Failed to delete todo: \(error)", category: "inbox")
+        }
+    }
+
+    /// Create a new todo item
+    /// - Parameter text: The todo text
+    func create(text: String) async {
+        guard !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            return
+        }
+
+        do {
+            _ = try await createUseCase.execute(
+                text: text,
+                captureMethod: .manualEntry
+            )
+            await load() // Refresh list
+        } catch {
+            self.error = error
+            Logger.error("Failed to create todo: \(error)", category: "inbox")
         }
     }
 }

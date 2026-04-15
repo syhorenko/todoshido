@@ -21,11 +21,13 @@ final class AppCoordinator: ObservableObject {
     /// Create Inbox view with injected dependencies
     func makeInboxView() -> InboxView {
         let fetchUseCase = FetchOpenTodosGroupedUseCase(repository: repository)
+        let createUseCase = CreateTodoUseCase(repository: repository)
         let completeUseCase = CompleteTodoUseCase(repository: repository)
         let deleteUseCase = DeleteTodoUseCase(repository: repository)
 
         let viewModel = InboxViewModel(
             fetchUseCase: fetchUseCase,
+            createUseCase: createUseCase,
             completeUseCase: completeUseCase,
             deleteUseCase: deleteUseCase
         )

@@ -10,6 +10,8 @@ import SwiftUI
 /// Inbox view displaying open (non-archived) todos grouped by date
 struct InboxView: View {
     @StateObject var viewModel: InboxViewModel
+    @State private var newTodoText: String = ""
+    @FocusState private var isInputFocused: Bool
 
     var body: some View {
         Group {
@@ -25,6 +27,35 @@ struct InboxView: View {
                 )
             } else {
                 List {
+                    Section {
+                        HStack(spacing: AppSpacing.small) {
+                            TextField("New todo...", text: $newTodoText)
+                                .textFieldStyle(.plain)
+                                .foregroundColor(AppColors.primaryText)
+                                .focused($isInputFocused)
+                                .onSubmit {
+                                    Task {
+                                        await createTodo()
+                                    }
+                                }
+
+                            if !newTodoText.isEmpty {
+                                Button(action: {
+                                    Task {
+                                        await createTodo()
+                                    }
+                                }) {
+                                    Image(systemName: "plus.circle.fill")
+                                        .foregroundColor(AppColors.accent)
+                                        .font(.title2)
+                                }
+                                .buttonStyle(.plain)
+                            }
+                        }
+                        .padding(.vertical, AppSpacing.small)
+                    }
+                    .listRowBackground(AppColors.elevated)
+
                     ForEach(viewModel.groups) { group in
                         Section {
                             ForEach(group.items) { item in
@@ -66,6 +97,12 @@ struct InboxView: View {
             }
         }
     }
+
+    private func createTodo() async {
+        await viewModel.create(text: newTodoText)
+        newTodoText = ""
+        isInputFocused = true
+    }
 }
 
 #Preview {
@@ -73,6 +110,7 @@ struct InboxView: View {
         InboxView(
             viewModel: InboxViewModel(
                 fetchUseCase: FetchOpenTodosGroupedUseCase(repository: MockTodoRepository()),
+                createUseCase: CreateTodoUseCase(repository: MockTodoRepository()),
                 completeUseCase: CompleteTodoUseCase(repository: MockTodoRepository()),
                 deleteUseCase: DeleteTodoUseCase(repository: MockTodoRepository())
             )
