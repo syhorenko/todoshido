@@ -1,0 +1,4 @@
+# Claude AI Documentation - Private Sessions
+# Sessions marked as 'private' are excluded from version control
+docs/claude/sessions/*-private.md
+docs/claude/sessions/**/*-private.md
