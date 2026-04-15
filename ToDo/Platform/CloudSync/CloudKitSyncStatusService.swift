@@ -6,26 +6,37 @@
 //
 
 import Foundation
+import CloudKit
+import CoreData
+import Combine
 
 /// CloudKit-based sync status implementation
-/// Read-only placeholder for Milestone 4 (iCloud Sync)
 final class CloudKitSyncStatusService: CloudSyncStatusService {
+    let monitor: CloudKitSyncMonitor
 
-    init() {
-        // Empty init - no CloudKit access until Milestone 4
+    init(monitor: CloudKitSyncMonitor) {
+        self.monitor = monitor
     }
 
     var isEnabled: Bool {
-        // Read from PersistenceController configuration
-        // Currently CloudKit is in entitlements but sync disabled
-        return false  // Will be true when Milestone 4 implemented
+        monitor.accountStatus == .available
     }
 
     var statusDescription: String {
-        if isEnabled {
-            return "iCloud Sync Enabled"
-        } else {
-            return "iCloud Sync Disabled (Coming Soon)"
-        }
+        monitor.statusDescription
+    }
+
+    var statusPublisher: AnyPublisher<String, Never> {
+        monitor.$accountStatus
+            .combineLatest(monitor.$isSyncing, monitor.$lastSyncDate)
+            .map { [weak monitor] _, _, _ in
+                monitor?.statusDescription ?? "Unknown"
+            }
+            .eraseToAnyPublisher()
+    }
+
+    var isSyncing: Bool {
+        monitor.isSyncing
     }
 }
+

@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Combine
 
 /// Service for checking iCloud sync status
 protocol CloudSyncStatusService {
@@ -14,4 +15,10 @@ protocol CloudSyncStatusService {
 
     /// Account status description
     var statusDescription: String { get }
+
+    /// Publisher for sync status changes
+    var statusPublisher: AnyPublisher<String, Never> { get }
+
+    /// Whether actively syncing
+    var isSyncing: Bool { get }
 }

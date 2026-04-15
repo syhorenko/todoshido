@@ -19,6 +19,7 @@ final class AppCoordinator: ObservableObject {
     private let preferencesService: PreferencesService
     private let launchAtLoginService: LaunchAtLoginService
     private let cloudSyncStatusService: CloudSyncStatusService
+    private let cloudSyncMonitor: CloudKitSyncMonitor
 
     // Published state for capture HUD
     @Published var captureMessage: String?
@@ -39,7 +40,15 @@ final class AppCoordinator: ObservableObject {
         // Initialize services
         self.preferencesService = UserDefaultsPreferencesService()
         self.launchAtLoginService = SMAppLaunchAtLoginService()
-        self.cloudSyncStatusService = CloudKitSyncStatusService()
+
+        // Initialize CloudKit sync monitor
+        let persistenceController = PersistenceController.shared
+        self.cloudSyncMonitor = CloudKitSyncMonitor(
+            container: persistenceController.container
+        )
+        self.cloudSyncStatusService = CloudKitSyncStatusService(
+            monitor: cloudSyncMonitor
+        )
 
         let createUseCase = CreateTodoUseCase(repository: repository)
         self.captureUseCase = CaptureTodoFromClipboardUseCase(
