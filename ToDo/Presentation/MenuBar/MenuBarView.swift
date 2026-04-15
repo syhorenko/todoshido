@@ -10,6 +10,8 @@ import SwiftUI
 /// Menu bar popover view showing recent todos
 struct MenuBarView: View {
     @StateObject var viewModel: MenuBarViewModel
+    @State private var newTodoText: String = ""
+    @FocusState private var isInputFocused: Bool
 
     var body: some View {
         VStack(spacing: 0) {
@@ -22,6 +24,36 @@ struct MenuBarView: View {
             }
             .padding(AppSpacing.medium)
             .background(AppColors.surface)
+
+            Divider()
+
+            // Quick-add field
+            HStack(spacing: AppSpacing.small) {
+                TextField("New todo...", text: $newTodoText)
+                    .textFieldStyle(.plain)
+                    .foregroundColor(AppColors.primaryText)
+                    .font(.caption)
+                    .focused($isInputFocused)
+                    .onSubmit {
+                        Task {
+                            await createTodo()
+                        }
+                    }
+
+                if !newTodoText.isEmpty {
+                    Button(action: {
+                        Task {
+                            await createTodo()
+                        }
+                    }) {
+                        Image(systemName: "plus.circle.fill")
+                            .foregroundColor(AppColors.accent)
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+            .padding(AppSpacing.medium)
+            .background(AppColors.elevated)
 
             Divider()
 
@@ -92,5 +124,11 @@ struct MenuBarView: View {
         .task {
             await viewModel.load()
         }
+    }
+
+    private func createTodo() async {
+        await viewModel.create(text: newTodoText)
+        newTodoText = ""
+        isInputFocused = true  // Keep focus for multiple entries
     }
 }

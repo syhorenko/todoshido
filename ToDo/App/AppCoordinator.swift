@@ -75,10 +75,12 @@ final class AppCoordinator: ObservableObject {
     func makeMenuBarView() -> MenuBarView {
         let fetchUseCase = FetchRecentTodosUseCase(repository: repository)
         let completeUseCase = CompleteTodoUseCase(repository: repository)
+        let createUseCase = CreateTodoUseCase(repository: repository)
 
         let viewModel = MenuBarViewModel(
             fetchUseCase: fetchUseCase,
-            completeUseCase: completeUseCase
+            completeUseCase: completeUseCase,
+            createUseCase: createUseCase
         )
 
         return MenuBarView(viewModel: viewModel)

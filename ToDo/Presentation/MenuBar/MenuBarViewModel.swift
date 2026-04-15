@@ -18,14 +18,17 @@ final class MenuBarViewModel: ObservableObject {
 
     private let fetchUseCase: FetchRecentTodosUseCase
     private let completeUseCase: CompleteTodoUseCase
+    private let createUseCase: CreateTodoUseCase
     private var cancellables = Set<AnyCancellable>()
 
     init(
         fetchUseCase: FetchRecentTodosUseCase,
-        completeUseCase: CompleteTodoUseCase
+        completeUseCase: CompleteTodoUseCase,
+        createUseCase: CreateTodoUseCase
     ) {
         self.fetchUseCase = fetchUseCase
         self.completeUseCase = completeUseCase
+        self.createUseCase = createUseCase
 
         // Listen for capture notifications to auto-refresh
         NotificationCenter.default.publisher(for: .todoCaptured)
@@ -61,6 +64,25 @@ final class MenuBarViewModel: ObservableObject {
         } catch {
             self.error = error
             Logger.error("Failed to complete todo: \(error)", category: "menubar")
+        }
+    }
+
+    /// Create a new todo item
+    /// - Parameter text: The todo text
+    func create(text: String) async {
+        guard !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            return
+        }
+
+        do {
+            _ = try await createUseCase.execute(
+                text: text,
+                captureMethod: .manualEntry
+            )
+            await load() // Refresh list
+        } catch {
+            self.error = error
+            Logger.error("Failed to create todo from menu bar: \(error)", category: "menubar")
         }
     }
 }
