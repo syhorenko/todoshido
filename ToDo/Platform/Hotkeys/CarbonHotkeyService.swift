@@ -48,7 +48,7 @@ final class CarbonHotkeyService: HotkeyService {
         // Create EventHotKeyID
         var hotkeyID = EventHotKeyID()
         hotkeyID.signature = UTGetOSTypeFromString("TDCP" as CFString)
-        hotkeyID.id = UInt32(configuration.identifier.hashValue)
+        hotkeyID.id = UInt32(bitPattern: Int32(truncatingIfNeeded: configuration.identifier.hashValue))
 
         // Register the hotkey
         var hotkeyRef: EventHotKeyRef?
@@ -130,7 +130,7 @@ final class CarbonHotkeyService: HotkeyService {
     private func handleHotkeyPressed(hotkeyID: EventHotKeyID) {
         // Find handler by matching hotkey ID
         for (identifier, handler) in handlers {
-            let expectedID = UInt32(identifier.hashValue)
+            let expectedID = UInt32(bitPattern: Int32(truncatingIfNeeded: identifier.hashValue))
             if hotkeyID.id == expectedID {
                 Logger.debug("Hotkey pressed: \(identifier)", category: "hotkey")
                 handler()
