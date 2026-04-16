@@ -15,6 +15,40 @@ struct TodoRowView: View {
     var onChangePriority: ((TodoPriority) -> Void)?
     var isCompact: Bool = false  // Compact mode for menu bar
 
+    @State private var isExpanded = false
+
+    /// Computed text that removes newlines when collapsed
+    private var displayText: String {
+        if isExpanded {
+            return item.text
+        } else {
+            // Replace newlines with spaces for compact display
+            return item.text.replacingOccurrences(of: "\n", with: " ")
+        }
+    }
+
+    /// Attributed string with clickable links
+    private var attributedText: AttributedString {
+        var attributedString = AttributedString(displayText)
+
+        // Detect URLs in the text
+        if let detector = try? NSDataDetector(types: NSTextCheckingResult.CheckingType.link.rawValue) {
+            let nsString = displayText as NSString
+            let matches = detector.matches(in: displayText, range: NSRange(location: 0, length: nsString.length))
+
+            for match in matches.reversed() {
+                if let range = Range(match.range, in: displayText),
+                   let url = match.url {
+                    let startIndex = attributedString.index(attributedString.startIndex, offsetByCharacters: match.range.location)
+                    let endIndex = attributedString.index(startIndex, offsetByCharacters: match.range.length)
+                    attributedString[startIndex..<endIndex].link = url
+                }
+            }
+        }
+
+        return attributedString
+    }
+
     var body: some View {
         HStack(alignment: .top, spacing: isCompact ? AppSpacing.small : AppSpacing.medium) {
             // Priority badge
@@ -25,13 +59,14 @@ struct TodoRowView: View {
                 .accessibilityLabel(item.priority.displayName + " priority")
 
             VStack(alignment: .leading, spacing: AppSpacing.xSmall) {
-                Text(item.text)
+                Text(attributedText)
                     .foregroundColor(AppColors.primaryText)
-                    .lineLimit(isCompact ? 2 : 3)
+                    .lineLimit(isExpanded ? nil : 2)
                     .font(isCompact ? .caption : .body)
+                    .tint(AppColors.accent)
 
-                // Hide metadata in compact mode
-                if !isCompact {
+                // Show metadata only when expanded (and not in compact mode)
+                if !isCompact && isExpanded {
                     HStack(spacing: AppSpacing.small) {
                         if let appName = item.sourceAppName {
                             Label(appName, systemImage: "app.fill")
@@ -45,6 +80,7 @@ struct TodoRowView: View {
                     }
                 }
             }
+            .animation(.easeInOut(duration: 0.3), value: isExpanded)
 
             Spacer()
 
@@ -54,6 +90,12 @@ struct TodoRowView: View {
                     .foregroundColor(AppColors.accent)
             }
             .buttonStyle(.plain)
+        }
+        .contentShape(Rectangle())
+        .onTapGesture {
+            if !isCompact {
+                isExpanded.toggle()
+            }
         }
         .padding(.vertical, isCompact ? AppSpacing.xSmall : AppSpacing.small)
         .listRowBackground(AppColors.surface)
@@ -107,7 +149,7 @@ extension View {
 #Preview {
     let sampleItem = TodoItem(
         id: UUID(),
-        text: "Review pull request for new feature implementation",
+        text: "Review pull request for new feature implementation\nhttps://github.com/example/repo/pull/123",
         createdAt: Date(),
         updatedAt: Date(),
         completedAt: nil,
