@@ -44,6 +44,15 @@ final class InboxViewModel: ObservableObject {
                 }
             }
             .store(in: &cancellables)
+
+        // Listen for todos changed notifications (from other views)
+        NotificationCenter.default.publisher(for: .todosChanged)
+            .sink { [weak self] _ in
+                Task { @MainActor in
+                    await self?.load()
+                }
+            }
+            .store(in: &cancellables)
     }
 
     /// Load open todos grouped by creation date
@@ -67,6 +76,8 @@ final class InboxViewModel: ObservableObject {
         do {
             try await completeUseCase.execute(item)
             await load() // Refresh list
+            // Notify other views
+            NotificationCenter.default.post(name: .todosChanged, object: nil)
         } catch {
             self.error = error
             Logger.error("Failed to complete todo: \(error)", category: "inbox")
@@ -79,6 +90,8 @@ final class InboxViewModel: ObservableObject {
         do {
             try await deleteUseCase.execute(id: item.id)
             await load() // Refresh list
+            // Notify other views
+            NotificationCenter.default.post(name: .todosChanged, object: nil)
         } catch {
             self.error = error
             Logger.error("Failed to delete todo: \(error)", category: "inbox")
@@ -98,6 +111,8 @@ final class InboxViewModel: ObservableObject {
                 captureMethod: .manualEntry
             )
             await load() // Refresh list
+            // Notify other views
+            NotificationCenter.default.post(name: .todosChanged, object: nil)
         } catch {
             self.error = error
             Logger.error("Failed to create todo: \(error)", category: "inbox")
@@ -112,6 +127,8 @@ final class InboxViewModel: ObservableObject {
         do {
             try await updatePriorityUseCase.execute(item, priority: priority)
             await load() // Refresh list
+            // Notify other views
+            NotificationCenter.default.post(name: .todosChanged, object: nil)
         } catch {
             self.error = error
             Logger.error("Failed to change priority: \(error)", category: "inbox")

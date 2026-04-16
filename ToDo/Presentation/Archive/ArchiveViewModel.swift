@@ -19,6 +19,7 @@ final class ArchiveViewModel: ObservableObject {
     private let fetchUseCase: FetchArchivedTodosGroupedUseCase
     private let restoreUseCase: RestoreTodoUseCase
     private let deleteUseCase: DeleteTodoUseCase
+    private var cancellables = Set<AnyCancellable>()
 
     init(
         fetchUseCase: FetchArchivedTodosGroupedUseCase,
@@ -28,6 +29,15 @@ final class ArchiveViewModel: ObservableObject {
         self.fetchUseCase = fetchUseCase
         self.restoreUseCase = restoreUseCase
         self.deleteUseCase = deleteUseCase
+
+        // Listen for todos changed notifications (from other views)
+        NotificationCenter.default.publisher(for: .todosChanged)
+            .sink { [weak self] _ in
+                Task { @MainActor in
+                    await self?.load()
+                }
+            }
+            .store(in: &cancellables)
     }
 
     /// Load archived todos grouped by completion date
@@ -51,6 +61,8 @@ final class ArchiveViewModel: ObservableObject {
         do {
             try await restoreUseCase.execute(item)
             await load() // Refresh list
+            // Notify other views
+            NotificationCenter.default.post(name: .todosChanged, object: nil)
         } catch {
             self.error = error
             Logger.error("Failed to restore todo: \(error)", category: "archive")
@@ -63,6 +75,8 @@ final class ArchiveViewModel: ObservableObject {
         do {
             try await deleteUseCase.execute(id: item.id)
             await load() // Refresh list
+            // Notify other views
+            NotificationCenter.default.post(name: .todosChanged, object: nil)
         } catch {
             self.error = error
             Logger.error("Failed to delete todo: \(error)", category: "archive")

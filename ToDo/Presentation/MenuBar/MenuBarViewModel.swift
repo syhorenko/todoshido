@@ -41,6 +41,15 @@ final class MenuBarViewModel: ObservableObject {
                 }
             }
             .store(in: &cancellables)
+
+        // Listen for todos changed notifications (from other views)
+        NotificationCenter.default.publisher(for: .todosChanged)
+            .sink { [weak self] _ in
+                Task { @MainActor in
+                    await self?.load()
+                }
+            }
+            .store(in: &cancellables)
     }
 
     /// Load recent todos
@@ -64,6 +73,8 @@ final class MenuBarViewModel: ObservableObject {
         do {
             try await completeUseCase.execute(item)
             await load() // Refresh list
+            // Notify other views
+            NotificationCenter.default.post(name: .todosChanged, object: nil)
         } catch {
             self.error = error
             Logger.error("Failed to complete todo: \(error)", category: "menubar")
@@ -83,6 +94,8 @@ final class MenuBarViewModel: ObservableObject {
                 captureMethod: .manualEntry
             )
             await load() // Refresh list
+            // Notify other views
+            NotificationCenter.default.post(name: .todosChanged, object: nil)
         } catch {
             self.error = error
             Logger.error("Failed to create todo from menu bar: \(error)", category: "menubar")
@@ -97,6 +110,8 @@ final class MenuBarViewModel: ObservableObject {
         do {
             try await updatePriorityUseCase.execute(item, priority: priority)
             await load() // Refresh list
+            // Notify other views
+            NotificationCenter.default.post(name: .todosChanged, object: nil)
         } catch {
             self.error = error
             Logger.error("Failed to change priority: \(error)", category: "menubar")
