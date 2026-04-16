@@ -16,6 +16,7 @@ struct TodoRowView: View {
     var isCompact: Bool = false  // Compact mode for menu bar
 
     @State private var isExpanded = false
+    @State private var showPriorityPicker = false
 
     /// Computed text that removes newlines when collapsed
     private var displayText: String {
@@ -96,6 +97,21 @@ struct TodoRowView: View {
             if !isCompact {
                 isExpanded.toggle()
             }
+        }
+        .onLongPressGesture(minimumDuration: 0.5) {
+            if !isCompact, let _ = onChangePriority {
+                showPriorityPicker = true
+            }
+        }
+        .confirmationDialog("Change Priority", isPresented: $showPriorityPicker) {
+            ForEach([TodoPriority.urgent, .high, .normal, .low], id: \.self) { priority in
+                Button(priority.displayName) {
+                    onChangePriority?(priority)
+                }
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("Select a priority for this todo")
         }
         .padding(.vertical, isCompact ? AppSpacing.xSmall : AppSpacing.small)
         .listRowBackground(AppColors.surface)
