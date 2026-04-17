@@ -117,6 +117,12 @@ final class MockTodoRepository: TodoRepository {
         }
     }
 
+    func fetchAllTodos() async throws -> [TodoItem] {
+        queue.sync {
+            items.sorted { $0.createdAt > $1.createdAt }
+        }
+    }
+
     func createTodo(_ item: TodoItem) async throws {
         queue.sync {
             items.append(item)
@@ -139,13 +145,5 @@ final class MockTodoRepository: TodoRepository {
             }
             items.remove(at: index)
         }
-    }
-}
-
-// MARK: - TodoStatus Extension
-
-private extension TodoStatus {
-    var isArchived: Bool {
-        self == .archived
     }
 }

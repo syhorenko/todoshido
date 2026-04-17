@@ -16,6 +16,9 @@ protocol TodoRepository {
     /// Fetch all archived (completed) todos
     func fetchArchivedTodos() async throws -> [TodoItem]
 
+    /// Fetch all todos (both open and archived)
+    func fetchAllTodos() async throws -> [TodoItem]
+
     /// Create a new todo item
     func createTodo(_ item: TodoItem) async throws
 

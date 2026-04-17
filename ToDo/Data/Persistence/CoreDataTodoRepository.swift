@@ -37,6 +37,16 @@ final class CoreDataTodoRepository: TodoRepository {
         }
     }
 
+    func fetchAllTodos() async throws -> [TodoItem] {
+        try await context.perform {
+            let request = NSFetchRequest<ManagedTodoItem>(entityName: "ManagedTodoItem")
+            request.sortDescriptors = [NSSortDescriptor(keyPath: \ManagedTodoItem.createdAt, ascending: false)]
+
+            let managed = try self.context.fetch(request)
+            return managed.map { $0.toDomain() }
+        }
+    }
+
     func createTodo(_ item: TodoItem) async throws {
         try await context.perform {
             _ = ManagedTodoItem.create(from: item, in: self.context)

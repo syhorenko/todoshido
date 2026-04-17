@@ -15,6 +15,7 @@ struct MainView: View {
 
     enum Tab: String, CaseIterable, Identifiable {
         case inbox = "Inbox"
+        case weekOverview = "Week Overview"
         case archive = "Archive"
 
         var id: String { rawValue }
@@ -22,6 +23,7 @@ struct MainView: View {
         var icon: String {
             switch self {
             case .inbox: return "tray"
+            case .weekOverview: return "calendar"
             case .archive: return "archivebox"
             }
         }
@@ -41,6 +43,8 @@ struct MainView: View {
             switch selectedTab {
             case .inbox:
                 coordinator.makeInboxView(selectedTodoId: $selectedTodoId)
+            case .weekOverview:
+                coordinator.makeWeekOverviewView()
             case .archive:
                 coordinator.makeArchiveView()
             }

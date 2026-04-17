@@ -121,6 +121,17 @@ final class AppCoordinator: ObservableObject {
         return ArchiveView(viewModel: viewModel)
     }
 
+    /// Create Week Overview view with injected dependencies
+    func makeWeekOverviewView() -> WeekOverviewView {
+        let fetchWeekActivityUseCase = FetchWeekActivityUseCase(repository: repository)
+
+        let viewModel = WeekOverviewViewModel(
+            fetchWeekActivityUseCase: fetchWeekActivityUseCase
+        )
+
+        return WeekOverviewView(viewModel: viewModel)
+    }
+
     /// Create Menu Bar view with injected dependencies
     func makeMenuBarView() -> MenuBarView {
         let fetchUseCase = FetchRecentTodosUseCase(repository: repository)

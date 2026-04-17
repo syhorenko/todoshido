@@ -12,4 +12,8 @@ enum TodoStatus: Int16, Codable {
     case active
     case done
     case archived
+
+    var isArchived: Bool {
+        self == .archived
+    }
 }
