@@ -15,6 +15,7 @@ struct TodoRowView: View {
     var onChangePriority: ((TodoPriority) -> Void)?
     var onEdit: (() -> Void)?
     var isCompact: Bool = false  // Compact mode for menu bar
+    var isSelected: Bool = false  // Highlight when selected from menu bar
 
     @State private var isExpanded = false
     @State private var showPriorityPicker = false
@@ -120,7 +121,11 @@ struct TodoRowView: View {
             Text("Select a priority for this todo")
         }
         .padding(.vertical, isCompact ? AppSpacing.xSmall : AppSpacing.small)
-        .listRowBackground(AppColors.surface)
+        .listRowBackground(
+            isSelected
+                ? Color.yellow.opacity(0.3)
+                : AppColors.surface
+        )
         .contextMenu {
             if let onEdit = onEdit {
                 Button("Edit", action: onEdit)

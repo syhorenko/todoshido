@@ -66,7 +66,8 @@ final class AppCoordinator: ObservableObject {
     }
 
     /// Create Inbox view with injected dependencies
-    func makeInboxView() -> InboxView {
+    /// - Parameter selectedTodoId: Optional binding to selected todo ID for deep linking
+    func makeInboxView(selectedTodoId: Binding<UUID?>? = nil) -> InboxView {
         let fetchUseCase = FetchOpenTodosGroupedUseCase(repository: repository)
         let createUseCase = CreateTodoUseCase(
             repository: repository,
@@ -95,7 +96,10 @@ final class AppCoordinator: ObservableObject {
             voiceCaptureUseCase: voiceCaptureUseCase
         )
 
-        return InboxView(viewModel: viewModel)
+        return InboxView(
+            viewModel: viewModel,
+            selectedTodoId: selectedTodoId ?? .constant(nil)
+        )
     }
 
     /// Create Archive view with injected dependencies

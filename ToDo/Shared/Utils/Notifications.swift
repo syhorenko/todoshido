@@ -15,4 +15,29 @@ extension Notification.Name {
     /// Posted when todos are modified (created, completed, deleted, updated)
     /// This allows different views to stay in sync
     static let todosChanged = Notification.Name("todosChanged")
+
+    /// Posted when a specific todo should be selected and focused in the main window
+    static let selectTodoItem = Notification.Name("selectTodoItem")
+}
+
+/// Helper methods for working with notifications
+extension Notification {
+    /// Post notification to select a specific todo item
+    /// - Parameter todoId: UUID of the todo to select
+    static func postSelectTodoItem(_ todoId: UUID) {
+        NotificationCenter.default.post(
+            name: .selectTodoItem,
+            object: nil,
+            userInfo: ["todoId": todoId]
+        )
+    }
+
+    /// Extract todo ID from selectTodoItem notification
+    var selectedTodoId: UUID? {
+        guard name == .selectTodoItem,
+              let todoId = userInfo?["todoId"] as? UUID else {
+            return nil
+        }
+        return todoId
+    }
 }

@@ -18,6 +18,8 @@ final class InboxViewModel: ObservableObject {
     @Published var editingItem: TodoItem?
     @Published var isRecording = false
     @Published var partialTranscription = ""
+    @Published var selectedTodoId: UUID?
+    @Published var scrollToId: UUID?
 
     private let fetchUseCase: FetchOpenTodosGroupedUseCase
     private let createUseCase: CreateTodoUseCase
@@ -202,5 +204,18 @@ final class InboxViewModel: ObservableObject {
         voiceCaptureUseCase?.stop()
         isRecording = false
         partialTranscription = ""
+    }
+
+    /// Select and scroll to a specific todo
+    /// - Parameter id: UUID of the todo to select
+    func selectTodo(_ id: UUID) {
+        selectedTodoId = id
+        scrollToId = id
+
+        // Clear selection after 2 seconds
+        Task {
+            try? await Task.sleep(nanoseconds: 2_000_000_000)
+            selectedTodoId = nil
+        }
     }
 }

@@ -11,6 +11,7 @@ import SwiftUI
 struct MainView: View {
     @StateObject var coordinator: AppCoordinator
     @State private var selectedTab: Tab = .inbox
+    @State private var selectedTodoId: UUID?
 
     enum Tab: String, CaseIterable, Identifiable {
         case inbox = "Inbox"
@@ -39,12 +40,22 @@ struct MainView: View {
         } detail: {
             switch selectedTab {
             case .inbox:
-                coordinator.makeInboxView()
+                coordinator.makeInboxView(selectedTodoId: $selectedTodoId)
             case .archive:
                 coordinator.makeArchiveView()
             }
         }
         .background(AppColors.background)
+        .onReceive(NotificationCenter.default.publisher(for: .selectTodoItem)) { notification in
+            if let todoId = notification.selectedTodoId {
+                selectedTab = .inbox  // Switch to Inbox
+                selectedTodoId = todoId
+                // Clear after 2 seconds
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                    selectedTodoId = nil
+                }
+            }
+        }
         .overlay(alignment: .top) {
             if let message = coordinator.captureMessage,
                let type = coordinator.captureType {

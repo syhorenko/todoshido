@@ -10,6 +10,7 @@ import SwiftUI
 /// Inbox view displaying open (non-archived) todos grouped by date
 struct InboxView: View {
     @StateObject var viewModel: InboxViewModel
+    @Binding var selectedTodoId: UUID?
     @State private var newTodoText: String = ""
     @FocusState private var isInputFocused: Bool
     @State private var pulseAnimation = false
@@ -107,39 +108,51 @@ struct InboxView: View {
                         systemImage: "tray"
                     )
                 } else {
-                    List {
-                        ForEach(viewModel.groups) { group in
-                            Section {
-                                ForEach(group.items) { item in
-                                    TodoRowView(
-                                        item: item,
-                                        onComplete: {
-                                            Task {
-                                                await viewModel.complete(item)
-                                            }
-                                        },
-                                        onDelete: {
-                                            Task {
-                                                await viewModel.delete(item)
-                                            }
-                                        },
-                                        onChangePriority: { priority in
-                                            Task {
-                                                await viewModel.changePriority(item, to: priority)
-                                            }
-                                        },
-                                        onEdit: {
-                                            viewModel.editingItem = item
-                                        }
-                                    )
+                    ScrollViewReader { scrollProxy in
+                        List {
+                            ForEach(viewModel.groups) { group in
+                                Section {
+                                    ForEach(group.items) { item in
+                                        TodoRowView(
+                                            item: item,
+                                            onComplete: {
+                                                Task {
+                                                    await viewModel.complete(item)
+                                                }
+                                            },
+                                            onDelete: {
+                                                Task {
+                                                    await viewModel.delete(item)
+                                                }
+                                            },
+                                            onChangePriority: { priority in
+                                                Task {
+                                                    await viewModel.changePriority(item, to: priority)
+                                                }
+                                            },
+                                            onEdit: {
+                                                viewModel.editingItem = item
+                                            },
+                                            isSelected: selectedTodoId == item.id
+                                        )
+                                        .id(item.id)
+                                    }
+                                } header: {
+                                    SectionHeaderView(title: group.title)
                                 }
-                            } header: {
-                                SectionHeaderView(title: group.title)
+                            }
+                        }
+                        .listStyle(.plain)
+                        .scrollContentBackground(.hidden)
+                        .onChange(of: selectedTodoId) { newId in
+                            if let id = newId {
+                                viewModel.selectTodo(id)
+                                withAnimation {
+                                    scrollProxy.scrollTo(id, anchor: .center)
+                                }
                             }
                         }
                     }
-                    .listStyle(.plain)
-                    .scrollContentBackground(.hidden)
                 }
             }
         }
@@ -186,7 +199,8 @@ struct InboxView: View {
                 deleteUseCase: DeleteTodoUseCase(repository: MockTodoRepository()),
                 updatePriorityUseCase: UpdateTodoPriorityUseCase(repository: MockTodoRepository()),
                 updateTodoUseCase: UpdateTodoUseCase(repository: MockTodoRepository())
-            )
+            ),
+            selectedTodoId: .constant(nil)
         )
     }
 }

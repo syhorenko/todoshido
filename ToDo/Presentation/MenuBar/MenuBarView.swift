@@ -97,6 +97,14 @@ struct MenuBarView: View {
                                     isCompact: true
                                 )
                                 .padding(.horizontal, AppSpacing.medium)
+                                .contentShape(Rectangle())
+                                .onTapGesture {
+                                    // Post notification to select this todo
+                                    Notification.postSelectTodoItem(item.id)
+
+                                    // Activate main window
+                                    NSApplication.shared.activate(ignoringOtherApps: true)
+                                }
 
                                 if item.id != viewModel.recentTodos.last?.id {
                                     Divider()
