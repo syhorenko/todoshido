@@ -18,14 +18,15 @@ final class CocoaFileHandlingService: FileHandlingService {
         savePanel.canCreateDirectories = true
         savePanel.isExtensionHidden = false
 
-        guard let window = NSApp.keyWindow else {
-            // Fallback to regular modal if no key window
+        // Try to get a window from the app's windows
+        if let window = NSApp.windows.first(where: { $0.isVisible && $0.isKeyWindow }) ?? NSApp.windows.first(where: { $0.isVisible }) {
+            let response = await savePanel.beginSheetModal(for: window)
+            return response == .OK ? savePanel.url : nil
+        } else {
+            // Fallback to regular modal if no suitable window
             let response = savePanel.runModal()
             return response == .OK ? savePanel.url : nil
         }
-
-        let response = await savePanel.beginSheetModal(for: window)
-        return response == .OK ? savePanel.url : nil
     }
 
     func showOpenPanel(allowedFileTypes: [String]) async -> URL? {
@@ -35,14 +36,15 @@ final class CocoaFileHandlingService: FileHandlingService {
         openPanel.canChooseDirectories = false
         openPanel.canChooseFiles = true
 
-        guard let window = NSApp.keyWindow else {
-            // Fallback to regular modal if no key window
+        // Try to get a window from the app's windows
+        if let window = NSApp.windows.first(where: { $0.isVisible && $0.isKeyWindow }) ?? NSApp.windows.first(where: { $0.isVisible }) {
+            let response = await openPanel.beginSheetModal(for: window)
+            return response == .OK ? openPanel.url : nil
+        } else {
+            // Fallback to regular modal if no suitable window
             let response = openPanel.runModal()
             return response == .OK ? openPanel.url : nil
         }
-
-        let response = await openPanel.beginSheetModal(for: window)
-        return response == .OK ? openPanel.url : nil
     }
 
     func writeData(_ data: Data, to url: URL) throws {
