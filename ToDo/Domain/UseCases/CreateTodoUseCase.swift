@@ -2,7 +2,7 @@
 //  CreateTodoUseCase.swift
 //  ToDo
 //
-//  Created by Claude on 15/04/2026.
+//  Created by syh on 15/04/2026.
 //
 
 import Foundation
@@ -11,10 +11,16 @@ import Foundation
 final class CreateTodoUseCase {
     private let repository: TodoRepository
     private let preferencesService: PreferencesService
+    private let soundService: SoundService?
 
-    init(repository: TodoRepository, preferencesService: PreferencesService) {
+    init(
+        repository: TodoRepository,
+        preferencesService: PreferencesService,
+        soundService: SoundService? = nil
+    ) {
         self.repository = repository
         self.preferencesService = preferencesService
+        self.soundService = soundService
     }
 
     /// Create a new todo item with the given text and capture method
@@ -46,8 +52,11 @@ final class CreateTodoUseCase {
             priority: preferences.defaultTodoPriority
         )
 
+        Logger.info("Creating todo via \(captureMethod): \(text.prefix(50))", category: "usecase")
         try await repository.createTodo(item)
-        Logger.info("Created todo via \(captureMethod) with \(item.priority) priority: \(text.prefix(50))", category: "usecase")
+        Logger.info("Created todo \(item.id) via \(captureMethod) with \(item.priority) priority", category: "usecase")
+
+        soundService?.playTaskCreated()
 
         return item
     }

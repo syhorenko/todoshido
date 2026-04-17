@@ -2,7 +2,7 @@
 //  MenuBarView.swift
 //  ToDo
 //
-//  Created by Claude on 15/04/2026.
+//  Created by syh on 15/04/2026.
 //
 
 import SwiftUI
@@ -94,17 +94,25 @@ struct MenuBarView: View {
                                             await viewModel.changePriority(item, to: priority)
                                         }
                                     },
+                                    onTap: {
+                                        // Post notification to select this todo
+                                        Logger.info("Menu bar: Opening todo \(item.id)", category: "menubar")
+                                        Notification.postSelectTodoItem(item.id)
+
+                                        // Activate main window
+                                        NSApplication.shared.activate(ignoringOtherApps: true)
+
+                                        // Also show all windows
+                                        for window in NSApplication.shared.windows {
+                                            if window.canBecomeKey && !window.isKeyWindow {
+                                                window.makeKeyAndOrderFront(nil)
+                                                Logger.info("Brought window to front: \(window.title)", category: "menubar")
+                                            }
+                                        }
+                                    },
                                     isCompact: true
                                 )
                                 .padding(.horizontal, AppSpacing.medium)
-                                .contentShape(Rectangle())
-                                .onTapGesture {
-                                    // Post notification to select this todo
-                                    Notification.postSelectTodoItem(item.id)
-
-                                    // Activate main window
-                                    NSApplication.shared.activate(ignoringOtherApps: true)
-                                }
 
                                 if item.id != viewModel.recentTodos.last?.id {
                                     Divider()

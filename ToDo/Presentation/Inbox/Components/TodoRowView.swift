@@ -2,7 +2,7 @@
 //  TodoRowView.swift
 //  ToDo
 //
-//  Created by Claude on 15/04/2026.
+//  Created by syh on 15/04/2026.
 //
 
 import SwiftUI
@@ -14,6 +14,7 @@ struct TodoRowView: View {
     let onDelete: () -> Void
     var onChangePriority: ((TodoPriority) -> Void)?
     var onEdit: (() -> Void)?
+    var onTap: (() -> Void)?  // Tap handler for compact mode
     var isCompact: Bool = false  // Compact mode for menu bar
     var isSelected: Bool = false  // Highlight when selected from menu bar
 
@@ -84,25 +85,43 @@ struct TodoRowView: View {
                 }
             }
             .animation(.easeInOut(duration: 0.3), value: isExpanded)
-
-            Spacer()
-
-            Button(action: onComplete) {
-                Image(systemName: "checkmark.circle")
-                    .font(isCompact ? .body : .title2)
-                    .foregroundColor(AppColors.accent)
-            }
-            .buttonStyle(.plain)
-        }
-        .contentShape(Rectangle())
-        .onTapGesture(count: 2) {
-            if !isCompact {
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .contentShape(Rectangle())
+            .onTapGesture(count: 2) {
                 onEdit?()
             }
-        }
-        .onTapGesture {
-            if !isCompact {
+            .onTapGesture {
                 isExpanded.toggle()
+            }
+
+            // Buttons in compact mode
+            if isCompact {
+                HStack(spacing: AppSpacing.xSmall) {
+                    if let onTap = onTap {
+                        Button(action: onTap) {
+                            Image(systemName: "arrow.up.forward.square")
+                                .font(.caption)
+                                .foregroundColor(AppColors.accent)
+                        }
+                        .buttonStyle(.plain)
+                    }
+
+                    Button(action: onComplete) {
+                        Image(systemName: "checkmark.circle")
+                            .font(.caption)
+                            .foregroundColor(AppColors.accent)
+                    }
+                    .buttonStyle(.plain)
+                }
+            } else {
+                Spacer()
+
+                Button(action: onComplete) {
+                    Image(systemName: "checkmark.circle")
+                        .font(.title2)
+                        .foregroundColor(AppColors.accent)
+                    }
+                .buttonStyle(.plain)
             }
         }
         .onLongPressGesture(minimumDuration: 0.5) {
@@ -120,7 +139,7 @@ struct TodoRowView: View {
         } message: {
             Text("Select a priority for this todo")
         }
-        .padding(.vertical, isCompact ? AppSpacing.xSmall : AppSpacing.small)
+        .padding(.vertical, isCompact ? 4 : AppSpacing.small)
         .listRowBackground(
             isSelected
                 ? Color.yellow.opacity(0.3)

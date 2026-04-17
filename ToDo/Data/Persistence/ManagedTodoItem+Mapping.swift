@@ -2,7 +2,7 @@
 //  ManagedTodoItem+Mapping.swift
 //  ToDo
 //
-//  Created by Claude on 15/04/2026.
+//  Created by syh on 15/04/2026.
 //
 
 import CoreData

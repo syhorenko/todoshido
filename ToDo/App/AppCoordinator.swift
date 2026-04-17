@@ -2,7 +2,7 @@
 //  AppCoordinator.swift
 //  ToDo
 //
-//  Created by Claude on 15/04/2026.
+//  Created by syh on 15/04/2026.
 //
 
 import SwiftUI
@@ -20,6 +20,7 @@ final class AppCoordinator: ObservableObject {
     private let launchAtLoginService: LaunchAtLoginService
     private let cloudSyncStatusService: CloudSyncStatusService
     private let cloudSyncMonitor: CloudKitSyncMonitor
+    private let soundService: SoundService
 
     // Published state for capture HUD
     @Published var captureMessage: String?
@@ -40,6 +41,7 @@ final class AppCoordinator: ObservableObject {
         // Initialize services
         self.preferencesService = UserDefaultsPreferencesService()
         self.launchAtLoginService = SMAppLaunchAtLoginService()
+        self.soundService = NSSoundService()
 
         // Initialize CloudKit sync monitor
         let persistenceController = PersistenceController.shared
@@ -52,7 +54,8 @@ final class AppCoordinator: ObservableObject {
 
         let createUseCase = CreateTodoUseCase(
             repository: repository,
-            preferencesService: preferencesService
+            preferencesService: preferencesService,
+            soundService: soundService
         )
         self.captureUseCase = CaptureTodoFromClipboardUseCase(
             pasteboardService: pasteboardService,
@@ -71,9 +74,10 @@ final class AppCoordinator: ObservableObject {
         let fetchUseCase = FetchOpenTodosGroupedUseCase(repository: repository)
         let createUseCase = CreateTodoUseCase(
             repository: repository,
-            preferencesService: preferencesService
+            preferencesService: preferencesService,
+            soundService: soundService
         )
-        let completeUseCase = CompleteTodoUseCase(repository: repository)
+        let completeUseCase = CompleteTodoUseCase(repository: repository, soundService: soundService)
         let deleteUseCase = DeleteTodoUseCase(repository: repository)
         let updatePriorityUseCase = UpdateTodoPriorityUseCase(repository: repository)
         let updateTodoUseCase = UpdateTodoUseCase(repository: repository)
@@ -120,10 +124,11 @@ final class AppCoordinator: ObservableObject {
     /// Create Menu Bar view with injected dependencies
     func makeMenuBarView() -> MenuBarView {
         let fetchUseCase = FetchRecentTodosUseCase(repository: repository)
-        let completeUseCase = CompleteTodoUseCase(repository: repository)
+        let completeUseCase = CompleteTodoUseCase(repository: repository, soundService: soundService)
         let createUseCase = CreateTodoUseCase(
             repository: repository,
-            preferencesService: preferencesService
+            preferencesService: preferencesService,
+            soundService: soundService
         )
         let updatePriorityUseCase = UpdateTodoPriorityUseCase(repository: repository)
 
@@ -244,6 +249,7 @@ final class AppCoordinator: ObservableObject {
     // MARK: - Capture Handling
 
     func handleCapture() async {
+        Logger.info("handleCapture called", category: "coordinator")
         do {
             let item = try await captureUseCase.execute()
             showCaptureSuccess(text: item.text)

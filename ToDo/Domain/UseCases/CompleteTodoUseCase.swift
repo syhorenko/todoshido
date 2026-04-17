@@ -2,7 +2,7 @@
 //  CompleteTodoUseCase.swift
 //  ToDo
 //
-//  Created by Claude on 15/04/2026.
+//  Created by syh on 15/04/2026.
 //
 
 import Foundation
@@ -10,9 +10,11 @@ import Foundation
 /// Use case for marking a todo item as complete and archiving it
 final class CompleteTodoUseCase {
     private let repository: TodoRepository
+    private let soundService: SoundService?
 
-    init(repository: TodoRepository) {
+    init(repository: TodoRepository, soundService: SoundService? = nil) {
         self.repository = repository
+        self.soundService = soundService
     }
 
     /// Mark a todo item as complete and archive it
@@ -27,5 +29,7 @@ final class CompleteTodoUseCase {
 
         try await repository.updateTodo(updated)
         Logger.info("Completed todo: \(item.id)", category: "usecase")
+
+        soundService?.playTaskCompleted()
     }
 }
