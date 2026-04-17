@@ -9,7 +9,7 @@ import Foundation
 
 /// Domain model for a todo item
 /// Clean Swift model independent of persistence layer
-struct TodoItem: Identifiable, Equatable {
+struct TodoItem: Identifiable, Equatable, Codable {
     let id: UUID
     var text: String
     var createdAt: Date

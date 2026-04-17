@@ -124,6 +124,33 @@ struct SettingsView: View {
                 // Trigger UI refresh when status changes
             }
 
+            // Data Management Section
+            Section("Data Management") {
+                VStack(alignment: .leading, spacing: AppSpacing.small) {
+                    Text("Backup and restore your todos")
+                        .font(.caption)
+                        .foregroundColor(AppColors.secondaryText)
+
+                    HStack(spacing: AppSpacing.medium) {
+                        Button(action: { viewModel.exportTodos() }) {
+                            Label("Export All Todos", systemImage: "arrow.down.doc")
+                        }
+
+                        Button(action: { viewModel.importTodos() }) {
+                            Label("Import Todos", systemImage: "arrow.up.doc")
+                        }
+                    }
+
+                    // Show success message if present
+                    if let successMessage = viewModel.successMessage {
+                        Text(successMessage)
+                            .font(.caption)
+                            .foregroundColor(.green)
+                            .padding(.top, AppSpacing.xSmall)
+                    }
+                }
+            }
+
             // Reset Button
             Section {
                 Button("Reset to Defaults", role: .destructive) {

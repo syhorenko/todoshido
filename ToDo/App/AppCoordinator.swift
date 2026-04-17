@@ -135,10 +135,25 @@ final class AppCoordinator: ObservableObject {
 
     /// Create Settings view with injected dependencies
     func makeSettingsView() -> SettingsView {
+        // File handling service for export/import
+        let fileHandlingService = CocoaFileHandlingService()
+
+        // Export/Import use cases
+        let exportUseCase = ExportTodosUseCase(
+            repository: repository,
+            fileHandlingService: fileHandlingService
+        )
+        let importUseCase = ImportTodosUseCase(
+            repository: repository,
+            fileHandlingService: fileHandlingService
+        )
+
         let viewModel = SettingsViewModel(
             preferencesService: preferencesService,
             launchAtLoginService: launchAtLoginService,
-            cloudSyncStatusService: cloudSyncStatusService
+            cloudSyncStatusService: cloudSyncStatusService,
+            exportUseCase: exportUseCase,
+            importUseCase: importUseCase
         )
 
         return SettingsView(viewModel: viewModel)
