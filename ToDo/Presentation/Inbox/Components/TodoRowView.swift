@@ -13,6 +13,7 @@ struct TodoRowView: View {
     let onComplete: () -> Void
     let onDelete: () -> Void
     var onChangePriority: ((TodoPriority) -> Void)?
+    var onEdit: (() -> Void)?
     var isCompact: Bool = false  // Compact mode for menu bar
 
     @State private var isExpanded = false
@@ -93,6 +94,11 @@ struct TodoRowView: View {
             .buttonStyle(.plain)
         }
         .contentShape(Rectangle())
+        .onTapGesture(count: 2) {
+            if !isCompact {
+                onEdit?()
+            }
+        }
         .onTapGesture {
             if !isCompact {
                 isExpanded.toggle()
@@ -116,6 +122,10 @@ struct TodoRowView: View {
         .padding(.vertical, isCompact ? AppSpacing.xSmall : AppSpacing.small)
         .listRowBackground(AppColors.surface)
         .contextMenu {
+            if let onEdit = onEdit {
+                Button("Edit", action: onEdit)
+            }
+
             if let onChangePriority = onChangePriority {
                 // Priority submenu
                 Menu("Priority") {
@@ -130,7 +140,9 @@ struct TodoRowView: View {
                         }
                     }
                 }
+            }
 
+            if onEdit != nil || onChangePriority != nil {
                 Divider()
             }
 

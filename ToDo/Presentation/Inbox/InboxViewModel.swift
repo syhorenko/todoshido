@@ -15,12 +15,14 @@ final class InboxViewModel: ObservableObject {
     @Published var groups: [TodoGroup] = []
     @Published var isLoading = false
     @Published var error: Error?
+    @Published var editingItem: TodoItem?
 
     private let fetchUseCase: FetchOpenTodosGroupedUseCase
     private let createUseCase: CreateTodoUseCase
     private let completeUseCase: CompleteTodoUseCase
     private let deleteUseCase: DeleteTodoUseCase
     private let updatePriorityUseCase: UpdateTodoPriorityUseCase
+    private let updateTodoUseCase: UpdateTodoUseCase
     private var cancellables = Set<AnyCancellable>()
 
     init(
@@ -28,13 +30,15 @@ final class InboxViewModel: ObservableObject {
         createUseCase: CreateTodoUseCase,
         completeUseCase: CompleteTodoUseCase,
         deleteUseCase: DeleteTodoUseCase,
-        updatePriorityUseCase: UpdateTodoPriorityUseCase
+        updatePriorityUseCase: UpdateTodoPriorityUseCase,
+        updateTodoUseCase: UpdateTodoUseCase
     ) {
         self.fetchUseCase = fetchUseCase
         self.createUseCase = createUseCase
         self.completeUseCase = completeUseCase
         self.deleteUseCase = deleteUseCase
         self.updatePriorityUseCase = updatePriorityUseCase
+        self.updateTodoUseCase = updateTodoUseCase
 
         // Listen for capture notifications
         NotificationCenter.default.publisher(for: .todoCaptured)
@@ -132,6 +136,26 @@ final class InboxViewModel: ObservableObject {
         } catch {
             self.error = error
             Logger.error("Failed to change priority: \(error)", category: "inbox")
+        }
+    }
+
+    /// Edit a todo item's text
+    /// - Parameters:
+    ///   - item: The todo item to update
+    ///   - text: The new text content
+    func edit(_ item: TodoItem, text: String) async {
+        guard !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            return
+        }
+
+        do {
+            try await updateTodoUseCase.execute(item, text: text)
+            await load() // Refresh list
+            // Notify other views
+            NotificationCenter.default.post(name: .todosChanged, object: nil)
+        } catch {
+            self.error = error
+            Logger.error("Failed to edit todo: \(error)", category: "inbox")
         }
     }
 }

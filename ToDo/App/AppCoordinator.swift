@@ -75,13 +75,15 @@ final class AppCoordinator: ObservableObject {
         let completeUseCase = CompleteTodoUseCase(repository: repository)
         let deleteUseCase = DeleteTodoUseCase(repository: repository)
         let updatePriorityUseCase = UpdateTodoPriorityUseCase(repository: repository)
+        let updateTodoUseCase = UpdateTodoUseCase(repository: repository)
 
         let viewModel = InboxViewModel(
             fetchUseCase: fetchUseCase,
             createUseCase: createUseCase,
             completeUseCase: completeUseCase,
             deleteUseCase: deleteUseCase,
-            updatePriorityUseCase: updatePriorityUseCase
+            updatePriorityUseCase: updatePriorityUseCase,
+            updateTodoUseCase: updateTodoUseCase
         )
 
         return InboxView(viewModel: viewModel)

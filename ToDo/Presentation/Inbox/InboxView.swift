@@ -78,6 +78,9 @@ struct InboxView: View {
                                             Task {
                                                 await viewModel.changePriority(item, to: priority)
                                             }
+                                        },
+                                        onEdit: {
+                                            viewModel.editingItem = item
                                         }
                                     )
                                 }
@@ -95,6 +98,13 @@ struct InboxView: View {
         .navigationTitle("Inbox")
         .task {
             await viewModel.load()
+        }
+        .sheet(item: $viewModel.editingItem) { item in
+            EditTodoView(item: item) { newText in
+                Task {
+                    await viewModel.edit(item, text: newText)
+                }
+            }
         }
         .alert("Error", isPresented: .constant(viewModel.error != nil)) {
             Button("OK") {
@@ -125,7 +135,8 @@ struct InboxView: View {
                 ),
                 completeUseCase: CompleteTodoUseCase(repository: MockTodoRepository()),
                 deleteUseCase: DeleteTodoUseCase(repository: MockTodoRepository()),
-                updatePriorityUseCase: UpdateTodoPriorityUseCase(repository: MockTodoRepository())
+                updatePriorityUseCase: UpdateTodoPriorityUseCase(repository: MockTodoRepository()),
+                updateTodoUseCase: UpdateTodoUseCase(repository: MockTodoRepository())
             )
         )
     }
