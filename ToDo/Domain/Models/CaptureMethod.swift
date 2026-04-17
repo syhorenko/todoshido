@@ -11,6 +11,7 @@ import Foundation
 enum CaptureMethod: Int16, Codable {
     case clipboardShortcut
     case manualEntry
+    case voiceCapture
     case shareExtension // future
     case accessibilitySelection // future
 }

@@ -77,13 +77,22 @@ final class AppCoordinator: ObservableObject {
         let updatePriorityUseCase = UpdateTodoPriorityUseCase(repository: repository)
         let updateTodoUseCase = UpdateTodoUseCase(repository: repository)
 
+        // Voice capture use case
+        let speechRecognitionService = SFSpeechRecognitionService()
+        let voiceCaptureUseCase = CaptureTodoFromVoiceUseCase(
+            speechRecognitionService: speechRecognitionService,
+            createUseCase: createUseCase,
+            preferencesService: preferencesService
+        )
+
         let viewModel = InboxViewModel(
             fetchUseCase: fetchUseCase,
             createUseCase: createUseCase,
             completeUseCase: completeUseCase,
             deleteUseCase: deleteUseCase,
             updatePriorityUseCase: updatePriorityUseCase,
-            updateTodoUseCase: updateTodoUseCase
+            updateTodoUseCase: updateTodoUseCase,
+            voiceCaptureUseCase: voiceCaptureUseCase
         )
 
         return InboxView(viewModel: viewModel)

@@ -12,32 +12,81 @@ struct InboxView: View {
     @StateObject var viewModel: InboxViewModel
     @State private var newTodoText: String = ""
     @FocusState private var isInputFocused: Bool
+    @State private var pulseAnimation = false
 
     var body: some View {
         VStack(spacing: 0) {
             // Quick-add field - always visible
-            HStack(spacing: AppSpacing.small) {
-                TextField("New todo...", text: $newTodoText)
-                    .textFieldStyle(.plain)
-                    .foregroundColor(AppColors.primaryText)
-                    .focused($isInputFocused)
-                    .onSubmit {
-                        Task {
-                            await createTodo()
+            VStack(spacing: AppSpacing.small) {
+                HStack(spacing: AppSpacing.small) {
+                    TextField("New todo...", text: $newTodoText)
+                        .textFieldStyle(.plain)
+                        .foregroundColor(AppColors.primaryText)
+                        .focused($isInputFocused)
+                        .disabled(viewModel.isRecording)
+                        .onSubmit {
+                            Task {
+                                await createTodo()
+                            }
                         }
+
+                    if !newTodoText.isEmpty {
+                        Button(action: {
+                            Task {
+                                await createTodo()
+                            }
+                        }) {
+                            Image(systemName: "plus.circle.fill")
+                                .foregroundColor(AppColors.accent)
+                                .font(.title2)
+                        }
+                        .buttonStyle(.plain)
                     }
 
-                if !newTodoText.isEmpty {
-                    Button(action: {
-                        Task {
-                            await createTodo()
+                    // Voice capture button
+                    if !viewModel.isRecording {
+                        Button(action: {
+                            Task {
+                                await viewModel.startVoiceCapture()
+                            }
+                        }) {
+                            Image(systemName: "mic.fill")
+                                .foregroundColor(AppColors.accent)
+                                .font(.title2)
                         }
-                    }) {
-                        Image(systemName: "plus.circle.fill")
-                            .foregroundColor(AppColors.accent)
-                            .font(.title2)
+                        .buttonStyle(.plain)
+                    } else {
+                        Button(action: {
+                            viewModel.stopVoiceCapture()
+                        }) {
+                            Image(systemName: "mic.fill")
+                                .foregroundColor(.red)
+                                .font(.title2)
+                        }
+                        .buttonStyle(.plain)
+                        .overlay(
+                            Circle()
+                                .stroke(Color.red, lineWidth: 2)
+                                .scaleEffect(pulseAnimation ? 1.3 : 1.0)
+                                .opacity(pulseAnimation ? 0 : 1)
+                        )
+                        .onAppear {
+                            withAnimation(.easeInOut(duration: 1).repeatForever(autoreverses: false)) {
+                                pulseAnimation = true
+                            }
+                        }
+                        .onDisappear {
+                            pulseAnimation = false
+                        }
                     }
-                    .buttonStyle(.plain)
+                }
+
+                // Show partial transcription while recording
+                if viewModel.isRecording && !viewModel.partialTranscription.isEmpty {
+                    Text(viewModel.partialTranscription)
+                        .foregroundColor(AppColors.secondaryText)
+                        .font(.caption)
+                        .frame(maxWidth: .infinity, alignment: .leading)
                 }
             }
             .padding(AppSpacing.medium)

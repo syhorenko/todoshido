@@ -6,5 +6,9 @@
 	<array>
 		<string>remote-notification</string>
 	</array>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>Todoshido needs speech recognition to create todos from your voice.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Todoshido needs microphone access to record your voice for todo creation.</string>
 </dict>
 </plist>

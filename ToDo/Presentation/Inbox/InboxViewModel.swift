@@ -16,6 +16,8 @@ final class InboxViewModel: ObservableObject {
     @Published var isLoading = false
     @Published var error: Error?
     @Published var editingItem: TodoItem?
+    @Published var isRecording = false
+    @Published var partialTranscription = ""
 
     private let fetchUseCase: FetchOpenTodosGroupedUseCase
     private let createUseCase: CreateTodoUseCase
@@ -23,6 +25,7 @@ final class InboxViewModel: ObservableObject {
     private let deleteUseCase: DeleteTodoUseCase
     private let updatePriorityUseCase: UpdateTodoPriorityUseCase
     private let updateTodoUseCase: UpdateTodoUseCase
+    private let voiceCaptureUseCase: CaptureTodoFromVoiceUseCase?
     private var cancellables = Set<AnyCancellable>()
 
     init(
@@ -31,7 +34,8 @@ final class InboxViewModel: ObservableObject {
         completeUseCase: CompleteTodoUseCase,
         deleteUseCase: DeleteTodoUseCase,
         updatePriorityUseCase: UpdateTodoPriorityUseCase,
-        updateTodoUseCase: UpdateTodoUseCase
+        updateTodoUseCase: UpdateTodoUseCase,
+        voiceCaptureUseCase: CaptureTodoFromVoiceUseCase? = nil
     ) {
         self.fetchUseCase = fetchUseCase
         self.createUseCase = createUseCase
@@ -39,6 +43,7 @@ final class InboxViewModel: ObservableObject {
         self.deleteUseCase = deleteUseCase
         self.updatePriorityUseCase = updatePriorityUseCase
         self.updateTodoUseCase = updateTodoUseCase
+        self.voiceCaptureUseCase = voiceCaptureUseCase
 
         // Listen for capture notifications
         NotificationCenter.default.publisher(for: .todoCaptured)
@@ -157,5 +162,45 @@ final class InboxViewModel: ObservableObject {
             self.error = error
             Logger.error("Failed to edit todo: \(error)", category: "inbox")
         }
+    }
+
+    /// Start voice capture for creating a new todo
+    func startVoiceCapture() async {
+        guard let voiceCaptureUseCase = voiceCaptureUseCase else {
+            Logger.error("Voice capture not available", category: "inbox")
+            return
+        }
+
+        isRecording = true
+        partialTranscription = ""
+
+        do {
+            _ = try await voiceCaptureUseCase.execute { [weak self] partial in
+                Task { @MainActor in
+                    self?.partialTranscription = partial
+                }
+            }
+            await load() // Refresh list
+            // Notify other views
+            NotificationCenter.default.post(name: .todosChanged, object: nil)
+            isRecording = false
+            partialTranscription = ""
+        } catch CaptureTodoFromVoiceUseCase.CaptureError.duplicateCapture {
+            // Silent - duplicate detection is intentional
+            isRecording = false
+            partialTranscription = ""
+        } catch {
+            self.error = error
+            isRecording = false
+            partialTranscription = ""
+            Logger.error("Voice capture failed: \(error)", category: "inbox")
+        }
+    }
+
+    /// Stop current voice capture
+    func stopVoiceCapture() {
+        voiceCaptureUseCase?.stop()
+        isRecording = false
+        partialTranscription = ""
     }
 }
