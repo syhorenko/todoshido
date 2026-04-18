@@ -2,3 +2,7 @@
 # Sessions marked as 'private' are excluded from version control
 docs/claude/sessions/*-private.md
 docs/claude/sessions/**/*-private.md
+
+# Build artifacts
+build/*.dmg
+build/temp-*.dmg

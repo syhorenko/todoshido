@@ -8,11 +8,15 @@ VERSION="1.0.0"
 BACKGROUND_COLOR="#1a1a2e"
 
 # Paths
+PROJECT_ROOT="$(cd "$(dirname "$0")" && pwd)"
 BUILD_DIR="${HOME}/Library/Developer/Xcode/DerivedData/ToDo-dzjyuqtfzchvzshbamivwfyitfpd/Build/Products/Release"
 APP_PATH="${BUILD_DIR}/${APP_NAME}.app"
-DMG_DIR="${HOME}/Desktop"
+DMG_DIR="${PROJECT_ROOT}/build"
 TEMP_DIR=$(mktemp -d)
 FINAL_DMG="${DMG_DIR}/${DMG_NAME}-${VERSION}.dmg"
+
+# Create build directory if it doesn't exist
+mkdir -p "${DMG_DIR}"
 
 echo "📦 Creating DMG for ${APP_NAME}..."
 
@@ -77,6 +81,7 @@ hdiutil convert "${TEMP_DMG}" -format UDZO -imagekey zlib-level=9 -o "${FINAL_DM
 # Clean up
 echo "🧹 Cleaning up..."
 rm -rf "${TEMP_DIR}"
+rm -f "${TEMP_DMG}"
 
 echo "✅ DMG created successfully!"
 echo "📍 Location: ${FINAL_DMG}"
