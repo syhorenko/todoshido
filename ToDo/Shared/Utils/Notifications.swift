@@ -18,6 +18,9 @@ extension Notification.Name {
 
     /// Posted when a specific todo should be selected and focused in the main window
     static let selectTodoItem = Notification.Name("selectTodoItem")
+
+    /// Posted when the main window should be opened (if closed)
+    static let openMainWindow = Notification.Name("openMainWindow")
 }
 
 /// Helper methods for working with notifications

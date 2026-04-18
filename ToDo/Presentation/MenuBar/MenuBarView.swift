@@ -99,15 +99,21 @@ struct MenuBarView: View {
                                         Logger.info("Menu bar: Opening todo \(item.id)", category: "menubar")
                                         Notification.postSelectTodoItem(item.id)
 
-                                        // Activate main window
+                                        // Activate app
                                         NSApplication.shared.activate(ignoringOtherApps: true)
 
-                                        // Also show all windows
-                                        for window in NSApplication.shared.windows {
-                                            if window.canBecomeKey && !window.isKeyWindow {
-                                                window.makeKeyAndOrderFront(nil)
-                                                Logger.info("Brought window to front: \(window.title)", category: "menubar")
-                                            }
+                                        // Try to find existing main window
+                                        let mainWindow = NSApplication.shared.windows.first(where: { window in
+                                            window.canBecomeKey && window.level == .normal && !window.title.isEmpty
+                                        })
+
+                                        if let window = mainWindow {
+                                            window.makeKeyAndOrderFront(nil)
+                                            Logger.info("Brought main window to front: \(window.title)", category: "menubar")
+                                        } else {
+                                            // No window exists - create one by opening the app
+                                            NSWorkspace.shared.open(Bundle.main.bundleURL)
+                                            Logger.info("Opened app to create new window for todo", category: "menubar")
                                         }
                                     },
                                     isCompact: true
@@ -130,7 +136,23 @@ struct MenuBarView: View {
 
             // Footer - Open App button
             Button(action: {
+                // Activate app
                 NSApplication.shared.activate(ignoringOtherApps: true)
+
+                // Try to find existing main window
+                let mainWindow = NSApplication.shared.windows.first(where: { window in
+                    window.canBecomeKey && window.level == .normal && !window.title.isEmpty
+                })
+
+                if let window = mainWindow {
+                    window.makeKeyAndOrderFront(nil)
+                    Logger.debug("Open App button: Brought main window to front", category: "menubar")
+                } else {
+                    // No window exists - create one by opening the app bundle
+                    // This forces WindowGroup to instantiate a new window
+                    NSWorkspace.shared.open(Bundle.main.bundleURL)
+                    Logger.debug("Open App button: Opened app to create new window", category: "menubar")
+                }
             }) {
                 HStack {
                     Image(systemName: "arrow.up.forward.app")

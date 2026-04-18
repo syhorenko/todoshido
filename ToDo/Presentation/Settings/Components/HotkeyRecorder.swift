@@ -40,12 +40,17 @@ struct HotkeyRecorder: NSViewRepresentable {
         if isRecording {
             nsView.stringValue = "Press keys..."
             nsView.becomeFirstResponder()
-            context.coordinator.startRecording(nsView)
+            // Only start recording if not already recording to prevent duplicate monitors
+            if context.coordinator.monitor == nil {
+                context.coordinator.startRecording(nsView)
+            }
         } else {
             nsView.stringValue = HotkeyFormatter.displayString(
                 modifiers: modifiers,
                 keyCode: keyCode
             )
+            // Ensure monitor is stopped when not recording
+            context.coordinator.stopRecording()
         }
     }
 
@@ -58,7 +63,8 @@ struct HotkeyRecorder: NSViewRepresentable {
         @Binding var modifiers: UInt32
         @Binding var isRecording: Bool
 
-        private var monitor: Any?
+        fileprivate var monitor: Any?
+        private var timeoutTask: Task<Void, Never>?
 
         init(keyCode: Binding<UInt32>, modifiers: Binding<UInt32>, isRecording: Binding<Bool>) {
             _keyCode = keyCode
@@ -71,6 +77,12 @@ struct HotkeyRecorder: NSViewRepresentable {
         }
 
         func startRecording(_ textField: NSTextField) {
+            // Prevent duplicate monitors
+            guard monitor == nil else {
+                Logger.debug("Recording already in progress, skipping duplicate monitor", category: "settings")
+                return
+            }
+
             monitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] event in
                 guard let self = self else { return event }
 
@@ -94,13 +106,32 @@ struct HotkeyRecorder: NSViewRepresentable {
                 self.stopRecording()
                 return nil
             }
+
+            // Add safety timeout to prevent stuck recording state
+            timeoutTask = Task { [weak self] in
+                try? await Task.sleep(nanoseconds: 30_000_000_000) // 30 seconds
+                await MainActor.run {
+                    if self?.monitor != nil {
+                        Logger.error("Hotkey recording timed out after 30s, auto-cancelling", category: "settings")
+                        self?.stopRecording()
+                    }
+                }
+            }
+
+            Logger.debug("Started hotkey recording with timeout", category: "settings")
         }
 
         func stopRecording() {
             if let monitor = monitor {
                 NSEvent.removeMonitor(monitor)
                 self.monitor = nil
+                Logger.debug("Removed hotkey event monitor", category: "settings")
             }
+
+            // Cancel timeout task
+            timeoutTask?.cancel()
+            timeoutTask = nil
+
             isRecording = false
         }
 
