@@ -24,4 +24,11 @@ struct HotkeyConfiguration {
         modifiers: UInt32(cmdKey | shiftKey),
         identifier: "com.todoshido.capture"
     )
+
+    /// Browser capture shortcut: Cmd+Shift+U
+    static let browserCaptureShortcut = HotkeyConfiguration(
+        keyCode: 32,  // 'U' key
+        modifiers: UInt32(cmdKey | shiftKey),
+        identifier: "com.todoshido.browser-capture"
+    )
 }

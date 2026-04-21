@@ -12,6 +12,7 @@ enum CaptureMethod: Int16, Codable {
     case clipboardShortcut
     case manualEntry
     case voiceCapture
+    case browserCapture
     case shareExtension // future
     case accessibilitySelection // future
 }
