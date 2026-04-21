@@ -16,7 +16,6 @@ final class AppCoordinator: ObservableObject {
     private let repository: TodoRepository
     private let hotkeyService: HotkeyService
     private let captureUseCase: CaptureTodoFromClipboardUseCase
-    private let browserCaptureUseCase: CaptureTodoFromBrowserUseCase
     private let preferencesService: PreferencesService
     private let launchAtLoginService: LaunchAtLoginService
     private let cloudSyncStatusService: CloudSyncStatusService
@@ -65,18 +64,7 @@ final class AppCoordinator: ObservableObject {
             preferencesService: preferencesService
         )
 
-        // Initialize browser capture use case
-        let browserURLService = AppleScriptBrowserURLService()
-        self.browserCaptureUseCase = CaptureTodoFromBrowserUseCase(
-            browserURLService: browserURLService,
-            pasteboardService: pasteboardService,
-            activeAppService: activeAppService,
-            createUseCase: createUseCase,
-            preferencesService: preferencesService
-        )
-
         setupHotkey()
-        setupBrowserCaptureHotkey()
         subscribeToPreferenceChanges()
     }
 
@@ -217,25 +205,6 @@ final class AppCoordinator: ObservableObject {
         }
     }
 
-    private func setupBrowserCaptureHotkey() {
-        let config = HotkeyConfiguration.browserCaptureShortcut
-
-        do {
-            try hotkeyService.register(configuration: config, handler: { [weak self] in
-                Task { @MainActor in
-                    await self?.handleBrowserCapture()
-                }
-            })
-            let displayString = HotkeyFormatter.displayString(
-                modifiers: config.modifiers,
-                keyCode: config.keyCode
-            )
-            Logger.info("Browser capture hotkey registered: \(displayString)", category: "coordinator")
-        } catch {
-            Logger.error("Failed to register browser capture hotkey: \(error)", category: "coordinator")
-        }
-    }
-
     private func subscribeToPreferenceChanges() {
         guard let concreteService = preferencesService as? UserDefaultsPreferencesService else {
             return
@@ -306,27 +275,6 @@ final class AppCoordinator: ObservableObject {
         } catch {
             showCaptureError(message: "Failed to capture")
             Logger.error("Capture failed: \(error)", category: "capture")
-        }
-    }
-
-    func handleBrowserCapture() async {
-        Logger.info("handleBrowserCapture called", category: "coordinator")
-        do {
-            let item = try await browserCaptureUseCase.execute()
-            showCaptureSuccess(text: item.text)
-
-            // Notify views to refresh
-            NotificationCenter.default.post(name: .todoCaptured, object: nil)
-        } catch CaptureTodoFromBrowserUseCase.CaptureError.noBrowserURL {
-            showCaptureError(message: "No browser URL found")
-        } catch CaptureTodoFromBrowserUseCase.CaptureError.clipboardEmpty {
-            showCaptureError(message: "No browser URL and clipboard is empty")
-        } catch CaptureTodoFromBrowserUseCase.CaptureError.duplicateCapture {
-            // Silent ignore - duplicate detection prevents noise
-            Logger.debug("Duplicate browser capture suppressed", category: "browser-capture")
-        } catch {
-            showCaptureError(message: "Failed to capture from browser")
-            Logger.error("Browser capture failed: \(error)", category: "browser-capture")
         }
     }
 
